@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.farafonova.weatherapp.databinding.FragmentWeatherFavoritesBinding
 
 
@@ -21,7 +23,20 @@ class WeatherFavoritesFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentWeatherFavoritesBinding.inflate(layoutInflater, container, false)
+
         (activity as AppCompatActivity).setSupportActionBar(binding!!.appBar)
+
+        binding!!.recyclerView.setHasFixedSize(true)
+        binding!!.recyclerView.layoutManager =
+            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        val adapter = WeatherFavoritesRecyclerViewAdapter(
+            listOf(
+                FavoritesWeatherEntry("Novosibirsk", -8),
+                FavoritesWeatherEntry("Krasnoyarsk", -10),
+                FavoritesWeatherEntry("Sochi", +5)
+            )
+        )
+        binding!!.recyclerView.adapter = adapter
         return binding!!.root
     }
 
