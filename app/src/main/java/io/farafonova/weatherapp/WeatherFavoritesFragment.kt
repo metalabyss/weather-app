@@ -2,8 +2,9 @@ package io.farafonova.weatherapp
 
 import android.os.Bundle
 import android.view.*
-import androidx.fragment.app.Fragment
+import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.farafonova.weatherapp.databinding.FragmentWeatherFavoritesBinding
@@ -47,6 +48,21 @@ class WeatherFavoritesFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.toolbar_menu, menu)
+        val searchView = SearchView((context as MainActivity).supportActionBar?.themedContext ?: context)
+        menu.findItem(R.id.search).apply {
+            actionView = searchView
+        }
+        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Here is where we are going to implement the filter logic
+                return false
+            }
+
+        })
         super.onCreateOptionsMenu(menu, inflater)
     }
 }
