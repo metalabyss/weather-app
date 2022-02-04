@@ -2,7 +2,6 @@ package io.farafonova.weatherapp
 
 import android.os.Bundle
 import android.view.*
-import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +24,19 @@ class WeatherFavoritesFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentWeatherFavoritesBinding.inflate(layoutInflater, container, false)
 
-        (activity as AppCompatActivity).setSupportActionBar(binding!!.appBar)
+        binding!!.appBar.inflateMenu(R.menu.toolbar_menu)
+        binding!!.appBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.action_search -> {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.container, LocationSearchFragment())
+                        .addToBackStack(null)
+                        .commit()
+                    true
+                }
+                else -> false
+            }
+        }
 
         binding!!.recyclerView.setHasFixedSize(true)
         binding!!.recyclerView.layoutManager =
@@ -44,25 +55,5 @@ class WeatherFavoritesFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.toolbar_menu, menu)
-        val searchView = SearchView((context as MainActivity).supportActionBar?.themedContext ?: context)
-        menu.findItem(R.id.search).apply {
-            actionView = searchView
-        }
-        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                // Here is where we are going to implement the filter logic
-                return false
-            }
-
-        })
-        super.onCreateOptionsMenu(menu, inflater)
     }
 }
