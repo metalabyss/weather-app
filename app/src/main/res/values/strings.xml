@@ -6,4 +6,5 @@
     <string name="one_call_api_base_url">https://api.openweathermap.org/data/2.5/onecall</string>
     <string name="geocoding_api_base_url">https://api.openweathermap.org/geo/1.0/direct</string>
     <string name="search_hint">Search for weather in places</string>
+    <string name="searched_location_state_template_string">%1$s, %2$s</string>
 </resources>

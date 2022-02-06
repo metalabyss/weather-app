@@ -6,6 +6,8 @@ import android.view.*
 import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.farafonova.weatherapp.databinding.FragmentLocationSearchBinding
 
 class LocationSearchFragment : Fragment() {
@@ -22,6 +24,17 @@ class LocationSearchFragment : Fragment() {
     ): View {
         binding = FragmentLocationSearchBinding.inflate(layoutInflater, container, false)
         setupToolbar(binding!!.searchAppBar)
+
+        binding!!.rvSearchResults.setHasFixedSize(true)
+        binding!!.rvSearchResults.layoutManager =
+            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        val adapter = LocationSearchRecyclerViewAdapter(
+            listOf(
+                LocationSearchEntry("Novosibirsk", "Novosibirsk Oblast", "RU", true)
+            )
+        )
+        binding!!.rvSearchResults.adapter = adapter
+
         return binding!!.root
     }
 
@@ -43,6 +56,7 @@ class LocationSearchFragment : Fragment() {
             isIconifiedByDefault = false
             inputType = InputType.TYPE_TEXT_FLAG_CAP_WORDS
             gravity = Gravity.FILL_HORIZONTAL
+            requestFocusFromTouch()
         }
 
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
