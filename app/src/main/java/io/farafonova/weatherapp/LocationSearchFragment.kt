@@ -6,12 +6,17 @@ import android.view.*
 import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.farafonova.weatherapp.databinding.FragmentLocationSearchBinding
 
 class LocationSearchFragment : Fragment() {
-    private var binding: FragmentLocationSearchBinding? = null
+    private val viewModel: LocationSearchViewModel by viewModels {
+        LocationSearchViewModelFactory((activity?.application as WeatherApplication).datasourceManager)
+    }
+
+    private lateinit var binding: FragmentLocationSearchBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,24 +28,25 @@ class LocationSearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLocationSearchBinding.inflate(layoutInflater, container, false)
-        setupToolbar(binding!!.searchAppBar)
+        binding.lifecycleOwner = this
+        binding.apply {
+            locationSearchViewModel = viewModel
 
-        binding!!.rvSearchResults.setHasFixedSize(true)
-        binding!!.rvSearchResults.layoutManager =
-            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        val adapter = LocationSearchRecyclerViewAdapter(
-            listOf(
-                LocationSearchEntry("Novosibirsk", "Novosibirsk Oblast", "RU", true)
-            )
-        )
-        binding!!.rvSearchResults.adapter = adapter
+            rvSearchResults.setHasFixedSize(true)
+            rvSearchResults.layoutManager =
+                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        }
+        val adapter = LocationSearchRecyclerViewAdapter()
+        binding.rvSearchResults.adapter = adapter
+        setupToolbar(binding.searchAppBar)
 
-        return binding!!.root
-    }
+        viewModel.searchResult.observe(viewLifecycleOwner) { it?.let { adapter.submitList(it) } }
+        viewModel.errorMessage.observe(viewLifecycleOwner) {
+            binding.rvSearchResults.visibility = View.GONE
+            binding.tvError.visibility = View.VISIBLE
+        }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
+        return binding.root
     }
 
     private fun setupToolbar(toolbar: Toolbar) {
@@ -59,9 +65,14 @@ class LocationSearchFragment : Fragment() {
             requestFocusFromTouch()
         }
 
-        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
+                query?.let {
+                    binding.tvError.visibility = View.GONE
+                    binding.rvSearchResults.visibility = View.VISIBLE
+                    viewModel.searchForLocations(query)
+                }
+                return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {

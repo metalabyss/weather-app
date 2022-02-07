@@ -8,5 +8,6 @@ data class Location(
     @JsonProperty("name") val name: String,
     @JsonProperty("lat") val latitude: String,
     @JsonProperty("lon") val longitude: String,
+    @JsonProperty("state") val state: String?,
     @JsonProperty("country") val countryCode: String
 )

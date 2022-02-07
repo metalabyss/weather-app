@@ -1,4 +1,4 @@
 package io.farafonova.weatherapp
 
-class WeatherRepository {
+class WeatherRepository(private val baseUrl: String, private val apiKey: String) {
 }
