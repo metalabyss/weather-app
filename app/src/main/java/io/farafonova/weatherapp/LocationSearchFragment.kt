@@ -40,8 +40,12 @@ class LocationSearchFragment : Fragment() {
         binding.rvSearchResults.adapter = adapter
         setupToolbar(binding.searchAppBar)
 
-        viewModel.searchResult.observe(viewLifecycleOwner) { it?.let { adapter.submitList(it) } }
+        viewModel.searchResult.observe(viewLifecycleOwner) {
+            binding.progressIndicator.visibility = View.GONE
+            it?.let { adapter.submitList(it) }
+        }
         viewModel.errorMessage.observe(viewLifecycleOwner) {
+            binding.progressIndicator.visibility = View.GONE
             binding.rvSearchResults.visibility = View.GONE
             binding.tvError.visibility = View.VISIBLE
         }
@@ -70,6 +74,7 @@ class LocationSearchFragment : Fragment() {
                 query?.let {
                     binding.tvError.visibility = View.GONE
                     binding.rvSearchResults.visibility = View.VISIBLE
+                    binding.progressIndicator.visibility = View.VISIBLE
                     viewModel.searchForLocations(query)
                 }
                 return true
