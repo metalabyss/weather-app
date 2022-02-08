@@ -6,14 +6,14 @@ import android.view.*
 import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.farafonova.weatherapp.databinding.FragmentLocationSearchBinding
 
 class LocationSearchFragment : Fragment() {
-    private val viewModel: LocationSearchViewModel by viewModels {
-        LocationSearchViewModelFactory((activity?.application as WeatherApplication).datasourceManager)
+    private val viewModel: WeatherApplicationViewModel by activityViewModels {
+        WeatherApplicationViewModelFactory((activity?.application as WeatherApplication).datasourceManager)
     }
 
     private lateinit var binding: FragmentLocationSearchBinding
@@ -28,7 +28,7 @@ class LocationSearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLocationSearchBinding.inflate(layoutInflater, container, false)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.apply {
             locationSearchViewModel = viewModel
 

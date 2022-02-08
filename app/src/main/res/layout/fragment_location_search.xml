@@ -6,7 +6,7 @@
     <data>
         <variable
             name="locationSearchViewModel"
-            type="io.farafonova.weatherapp.LocationSearchViewModel" />
+            type="io.farafonova.weatherapp.WeatherApplicationViewModel" />
     </data>
 
     <FrameLayout
