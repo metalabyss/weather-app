@@ -1,4 +1,4 @@
-package io.farafonova.weatherapp
+package io.farafonova.weatherapp.ui.favorites
 
 import android.os.Bundle
 import android.view.*
@@ -6,7 +6,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.farafonova.weatherapp.R
+import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentWeatherFavoritesBinding
+import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
+import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
+import io.farafonova.weatherapp.ui.search.LocationSearchFragment
 
 
 class WeatherFavoritesFragment : Fragment() {

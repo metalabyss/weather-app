@@ -6,12 +6,12 @@
     <data>
         <variable
             name="weatherViewModel"
-            type="io.farafonova.weatherapp.WeatherApplicationViewModel" />
+            type="io.farafonova.weatherapp.ui.WeatherApplicationViewModel" />
     </data>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".WeatherFavoritesFragment">
+        tools:context=".ui.favorites.WeatherFavoritesFragment">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"

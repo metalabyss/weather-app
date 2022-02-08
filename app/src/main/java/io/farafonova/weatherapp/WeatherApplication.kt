@@ -1,6 +1,7 @@
 package io.farafonova.weatherapp
 
 import android.app.Application
+import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
 
 class WeatherApplication : Application() {
     private val apiKey by lazy { applicationContext.getString(R.string.api_key) }

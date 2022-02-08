@@ -1,5 +1,6 @@
-package io.farafonova.weatherapp
+package io.farafonova.weatherapp.persistence.network.geocoding
 
+import io.farafonova.weatherapp.persistence.network.geocoding.Location
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

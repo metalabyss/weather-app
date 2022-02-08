@@ -1,10 +1,13 @@
-package io.farafonova.weatherapp
+package io.farafonova.weatherapp.ui
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import io.farafonova.weatherapp.ui.favorites.FavoritesWeatherEntry
+import io.farafonova.weatherapp.ui.search.LocationSearchEntry
+import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
 import kotlinx.coroutines.launch
 
 class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasourceManager) :

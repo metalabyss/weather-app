@@ -1,4 +1,4 @@
-package io.farafonova.weatherapp
+package io.farafonova.weatherapp.persistence.network.weather
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

@@ -1,4 +1,4 @@
-package io.farafonova.weatherapp
+package io.farafonova.weatherapp.ui.favorites
 
 data class FavoritesWeatherEntry(
     val latitude: String,

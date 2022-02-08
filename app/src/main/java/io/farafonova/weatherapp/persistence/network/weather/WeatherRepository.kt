@@ -1,4 +1,4 @@
-package io.farafonova.weatherapp
+package io.farafonova.weatherapp.persistence.network.weather
 
 import android.util.Log
 import retrofit2.Retrofit

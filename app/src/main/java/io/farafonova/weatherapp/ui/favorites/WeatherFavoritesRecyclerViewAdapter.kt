@@ -1,4 +1,4 @@
-package io.farafonova.weatherapp
+package io.farafonova.weatherapp.ui.favorites
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

@@ -1,4 +1,4 @@
-package io.farafonova.weatherapp
+package io.farafonova.weatherapp.ui.search
 
 data class LocationSearchEntry(
     val name: String,

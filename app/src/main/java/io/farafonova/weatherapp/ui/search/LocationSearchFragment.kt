@@ -1,4 +1,4 @@
-package io.farafonova.weatherapp
+package io.farafonova.weatherapp.ui.search
 
 import android.os.Bundle
 import android.text.InputType
@@ -9,7 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.farafonova.weatherapp.R
+import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentLocationSearchBinding
+import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
+import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
 
 class LocationSearchFragment : Fragment() {
     private val viewModel: WeatherApplicationViewModel by activityViewModels {
