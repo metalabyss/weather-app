@@ -7,8 +7,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.databinding.LocationSearchResultItemBinding
+import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 
-class LocationSearchRecyclerViewAdapter :
+class LocationSearchRecyclerViewAdapter(private val parentViewModel: WeatherApplicationViewModel) :
     ListAdapter<LocationSearchEntry, LocationSearchViewHolder>(LocationSearchEntryComparator()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationSearchViewHolder {
@@ -33,6 +34,11 @@ class LocationSearchRecyclerViewAdapter :
             )
         }
         holder.binding.tbFavorite.isChecked = searchEntry.isSelected
+        holder.binding.tbFavorite.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) parentViewModel.addToFavorites(
+                searchEntry
+            ) else parentViewModel.removeFromFavorites(searchEntry)
+        }
     }
 }
 

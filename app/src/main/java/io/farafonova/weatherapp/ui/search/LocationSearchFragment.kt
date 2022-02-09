@@ -40,7 +40,7 @@ class LocationSearchFragment : Fragment() {
             rvSearchResults.layoutManager =
                 LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         }
-        val adapter = LocationSearchRecyclerViewAdapter()
+        val adapter = LocationSearchRecyclerViewAdapter(viewModel)
         binding.rvSearchResults.adapter = adapter
         setupToolbar(binding.searchAppBar)
 
