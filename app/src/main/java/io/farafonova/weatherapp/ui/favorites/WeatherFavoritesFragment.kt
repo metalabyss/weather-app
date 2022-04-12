@@ -49,8 +49,6 @@ class WeatherFavoritesFragment : Fragment() {
         }
 
         binding!!.recyclerView.setHasFixedSize(true)
-        binding!!.recyclerView.layoutManager =
-            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         val adapter = WeatherFavoritesRecyclerViewAdapter()
         binding!!.recyclerView.adapter = adapter
 

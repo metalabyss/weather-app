@@ -35,10 +35,7 @@ class LocationSearchFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.apply {
             locationSearchViewModel = viewModel
-
             rvSearchResults.setHasFixedSize(true)
-            rvSearchResults.layoutManager =
-                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         }
         val adapter = LocationSearchRecyclerViewAdapter(viewModel)
         binding.rvSearchResults.adapter = adapter
