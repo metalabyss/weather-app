@@ -28,12 +28,42 @@ class WeatherDatasourceManager(
     suspend fun findLocationsByName(name: String): List<LocationSearchEntry>? {
         return geocodingRepository.getLocationByName(name)
             ?.map {
-                LocationSearchEntry(it.name, it.state ?: "", it.countryCode)
+                val location = dao.getAllFavoriteLocations()
+                    .find { locationEntity -> locationEntity.latitude == it.latitude.toFloat()
+                            && locationEntity.longitude == it.longitude.toFloat() }
+                LocationSearchEntry(
+                    it.latitude,
+                    it.longitude,
+                    it.name,
+                    it.state ?: "",
+                    it.countryCode,
+                    location?.inFavorites ?: false
+                )
             }
     }
 
-    suspend fun addLocationToFavorites(location: LocationSearchEntry) {
+    suspend fun changeFavoriteLocationState(
+        location: LocationSearchEntry,
+        shouldBeFavorite: Boolean
+    ) {
+        val entity = LocationEntity(
+            location.latitude.toFloat(),
+            location.longitude.toFloat(),
+            location.name,
+            location.country,
+            shouldBeFavorite
+        )
 
+        val isLocationInDb = dao.isThereAlreadySuchLocation(
+            location.latitude.toFloat(),
+            location.longitude.toFloat()
+        )
+
+        if (isLocationInDb) {
+            dao.updateLocations(entity)
+        } else {
+            dao.insertLocations(entity)
+        }
     }
 
     suspend fun removeLocationFromFavorites(location: LocationSearchEntry) {

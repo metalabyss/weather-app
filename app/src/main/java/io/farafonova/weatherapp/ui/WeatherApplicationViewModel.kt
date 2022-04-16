@@ -34,11 +34,11 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
     }
 
     fun addToFavorites(location: LocationSearchEntry) = viewModelScope.launch {
-        datasourceManager.addLocationToFavorites(location)
+        datasourceManager.changeFavoriteLocationState(location, true)
     }
 
     fun removeFromFavorites(location: LocationSearchEntry) = viewModelScope.launch {
-        datasourceManager.removeLocationFromFavorites(location)
+        datasourceManager.changeFavoriteLocationState(location, false)
     }
 }
 

@@ -20,14 +20,20 @@ interface ForecastDao {
         longitude: Float
     ): CurrentForecastEntity
 
-    @Query("SELECT * FROM location WHERE in_favorites = 'TRUE'")
+    @Query("SELECT * FROM location WHERE in_favorites = 1")
     suspend fun getAllFavoriteLocations(): List<LocationEntity>
 
     @Query(
         "SELECT * FROM current_forecast " +
                 "JOIN location ON location.lat = current_forecast.lat " +
                 "AND location.lon = current_forecast.lon " +
-                "WHERE location.in_favorites = 'TRUE'"
+                "WHERE location.in_favorites = 1"
     )
     fun getCurrentForecastForAllFavoriteLocations(): Flow<Map<LocationEntity, CurrentForecastEntity>>
+
+    @Query("SELECT COUNT(*) > 0 FROM location WHERE lat = :latitude AND lon = :longitude")
+    suspend fun isThereAlreadySuchLocation(latitude: Float, longitude: Float): Boolean
+
+    @Query("SELECT * FROM location")
+    suspend fun getAllLocations(): List<LocationEntity>
 }

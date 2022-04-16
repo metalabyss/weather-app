@@ -8,6 +8,7 @@ data class LocationEntity(
     @ColumnInfo(name = "lat") val latitude: Float,
     @ColumnInfo(name = "lon") val longitude: Float,
     @ColumnInfo(name = "name") val locationName: String,
-    @ColumnInfo(name = "timezone_offset") val timeZoneOffset: Int,
+    @ColumnInfo(name = "country") val countryCode: String,
+//    @ColumnInfo(name = "timezone_offset") val timeZoneOffset: Int,
     @ColumnInfo(name = "in_favorites", defaultValue = "FALSE") var inFavorites: Boolean
 )
