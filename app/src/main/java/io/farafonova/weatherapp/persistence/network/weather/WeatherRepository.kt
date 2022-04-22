@@ -21,12 +21,19 @@ class WeatherRepository(baseUrl: String, private val apiKey: String) {
 
     suspend fun getWeather(latitude: Float, longitude: Float): OverallWeatherResponse? {
         val response =
-            weatherService.getWeather(latitude, longitude, language, units, null, apiKey)
+            weatherService.getWeather(
+                latitude,
+                longitude,
+                language,
+                units,
+                null,
+                apiKey
+            )
 
         return if (response.isSuccessful) {
             response.body()
         } else {
-            Log.e(TAG, "Failed to get geo data.")
+            Log.e(TAG, "Failed to get weather data.")
             return null
         }
     }

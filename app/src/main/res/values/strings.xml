@@ -3,7 +3,7 @@
     <string name="toolbar_settings_title">Settings</string>
     <string name="toolbar_search_title">Search</string>
     <string name="api_key">d4f5da31b2e37ed4d0f4f7b852948541</string>
-    <string name="one_call_api_base_url">https://api.openweathermap.org/data/2.5/onecall/</string>
+    <string name="one_call_api_base_url">https://api.openweathermap.org/data/2.5/</string>
     <string name="geocoding_api_base_url">https://api.openweathermap.org/geo/1.0/</string>
     <string name="search_hint">Search for weather in places</string>
     <string name="searched_location_state_template_string">%1$s, %2$s</string>

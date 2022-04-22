@@ -8,5 +8,5 @@ data class HourlyWeatherResponse(
     @JsonProperty("dt") val weatherTime: Int,
     @JsonProperty("temp") val temperature: Float,
     @JsonProperty("feels_like") val feelsLikeTemperature: Float,
-    @JsonProperty("weather") val description: WeatherDescription
+    @JsonProperty("weather") val description: List<WeatherDescription>
 )

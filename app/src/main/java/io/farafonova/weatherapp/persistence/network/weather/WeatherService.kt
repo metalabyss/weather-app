@@ -1,12 +1,11 @@
 package io.farafonova.weatherapp.persistence.network.weather
 
-import io.farafonova.weatherapp.persistence.network.weather.OverallWeatherResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface WeatherService {
-    @GET
+    @GET("onecall")
     suspend fun getWeather(
         @Query("lat") latitude: Float,
         @Query("lon") longitude: Float,

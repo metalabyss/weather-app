@@ -14,5 +14,5 @@ data class CurrentWeatherResponse(
     @JsonProperty("humidity") val humidity: Int,
     @JsonProperty("dew_point") val dewPoint: Float,
     @JsonProperty("uvi") val uvi: Float,
-    @JsonProperty("weather") val description: WeatherDescription
+    @JsonProperty("weather") val description: List<WeatherDescription>
 )
