@@ -4,14 +4,14 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.coroutineScope
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentWeatherFavoritesBinding
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
 import io.farafonova.weatherapp.ui.search.LocationSearchFragment
+import kotlinx.coroutines.launch
 
 
 class WeatherFavoritesFragment : Fragment() {
@@ -52,8 +52,10 @@ class WeatherFavoritesFragment : Fragment() {
         val adapter = WeatherFavoritesRecyclerViewAdapter()
         binding!!.recyclerView.adapter = adapter
 
-        viewModel.favorites.observe(viewLifecycleOwner) {
-            it?.let { adapter.submitList(it) }
+        lifecycle.coroutineScope.launch {
+            viewModel.favoriteForecasts.collect {
+                adapter.submitList(it)
+            }
         }
         return binding!!.root
     }
