@@ -5,7 +5,7 @@ import androidx.lifecycle.*
 import io.farafonova.weatherapp.ui.search.LocationSearchEntry
 import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
 import io.farafonova.weatherapp.ui.favorites.FavoritesWeatherEntry
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -13,14 +13,12 @@ import kotlinx.coroutines.launch
 class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasourceManager) :
     ViewModel() {
 
-    var favoriteForecasts: StateFlow<List<FavoritesWeatherEntry>?> = MutableStateFlow(emptyList())
     val searchResult: MutableLiveData<List<LocationSearchEntry>> = MutableLiveData()
     val errorMessage: MutableLiveData<String> = MutableLiveData("")
 
-    init {
-        viewModelScope.launch {
-            favoriteForecasts = datasourceManager.getLatestFavoriteForecasts().stateIn(viewModelScope)
-        }
+    suspend fun getFavorites(): StateFlow<List<FavoritesWeatherEntry>?> {
+        return datasourceManager.getLatestFavoriteForecasts()
+            .stateIn(viewModelScope, SharingStarted.Eagerly, null)
     }
 
     fun searchForLocations(locationName: String) = viewModelScope.launch {

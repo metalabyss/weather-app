@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.lifecycleScope
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentWeatherFavoritesBinding
@@ -52,8 +52,8 @@ class WeatherFavoritesFragment : Fragment() {
         val adapter = WeatherFavoritesRecyclerViewAdapter()
         binding!!.recyclerView.adapter = adapter
 
-        lifecycle.coroutineScope.launch {
-            viewModel.favoriteForecasts.collect {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getFavorites().collect {
                 adapter.submitList(it)
             }
         }
