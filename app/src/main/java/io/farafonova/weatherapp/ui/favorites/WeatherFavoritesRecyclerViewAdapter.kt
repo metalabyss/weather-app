@@ -18,14 +18,18 @@ class WeatherFavoritesRecyclerViewAdapter :
 
     override fun onBindViewHolder(holder: WeatherFavoritesViewHolder, position: Int) {
         val weatherEntry = getItem(position)
-
-        holder.binding.tvItemTemperature.text = weatherEntry.temperature.toString()
-        holder.binding.tvItemLocationName.text = weatherEntry.locationName
+        holder.bind(weatherEntry)
     }
 }
 
-class WeatherFavoritesViewHolder(val binding: LocationListItemBinding) :
-    RecyclerView.ViewHolder(binding.root)
+class WeatherFavoritesViewHolder(private val binding: LocationListItemBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(item: FavoritesWeatherEntry) {
+        binding.weatherEntry = item
+        binding.executePendingBindings()
+    }
+}
 
 class FavoritesWeatherEntryComparator : DiffUtil.ItemCallback<FavoritesWeatherEntry>() {
     override fun areItemsTheSame(
