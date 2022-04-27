@@ -3,6 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="searchEntry"
+            type="io.farafonova.weatherapp.ui.search.LocationSearchEntry" />
+        <variable
+            name="parentViewModel"
+            type="io.farafonova.weatherapp.ui.WeatherApplicationViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,6 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:text="@{searchEntry.name}"
             app:layout_constraintBottom_toTopOf="@+id/tv_location_state"
             app:layout_constraintStart_toEndOf="@+id/tb_favorite"
             tools:text="Akademgorodok" />
@@ -24,16 +34,19 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginStart="16dp"
+            android:text="@{searchEntry.state.empty ? searchEntry.country : @string/searched_location_state_template_string(searchEntry.state, searchEntry.country)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tb_favorite"
             tools:text="Novosibirsk Oblast, RU" />
 
         <ToggleButton
             android:id="@+id/tb_favorite"
+            android:checked="@{searchEntry.isSelected}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="8dp"
+            app:toggleButtonOnClick="@{(_, isChecked) -> isChecked ? parentViewModel.addToFavorites(searchEntry) : parentViewModel.removeFromFavorites(searchEntry)}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
