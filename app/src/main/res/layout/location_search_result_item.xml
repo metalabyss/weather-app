@@ -39,17 +39,20 @@
             app:layout_constraintStart_toEndOf="@+id/tb_favorite"
             tools:text="Novosibirsk Oblast, RU" />
 
-        <ToggleButton
+        <CheckBox
             android:id="@+id/tb_favorite"
+            android:button="@drawable/ic_favorite_inset"
             android:checked="@{searchEntry.isSelected}"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="8dp"
-            app:toggleButtonOnClick="@{(_, isChecked) -> isChecked ? parentViewModel.addToFavorites(searchEntry) : parentViewModel.removeFromFavorites(searchEntry)}"
+            app:compoundButtonOnClick="@{(_, isChecked) -> isChecked ? parentViewModel.addToFavorites(searchEntry) : parentViewModel.removeFromFavorites(searchEntry)}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        </ToggleButton>
+        </CheckBox>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
