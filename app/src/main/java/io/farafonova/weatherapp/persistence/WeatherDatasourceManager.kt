@@ -1,5 +1,6 @@
 package io.farafonova.weatherapp.persistence
 
+import android.content.SharedPreferences
 import io.farafonova.weatherapp.persistence.database.CurrentForecastEntity
 import io.farafonova.weatherapp.persistence.database.ForecastDao
 import io.farafonova.weatherapp.persistence.database.LocationEntity
@@ -15,7 +16,9 @@ class WeatherDatasourceManager(
     private val dao: ForecastDao,
     private val apiKey: String,
     private val oneCallApiBaseUrl: String,
-    private val geocodingApiBaseUrl: String
+    private val geocodingApiBaseUrl: String,
+    private val lastSyncSharedPrefs: SharedPreferences,
+    private val lastSyncTimeSharedPrefsKey: String
 ) {
     private val weatherRepository: WeatherRepository by lazy {
         WeatherRepository(oneCallApiBaseUrl, apiKey)
@@ -48,23 +51,28 @@ class WeatherDatasourceManager(
         location: LocationSearchEntry,
         shouldBeFavorite: Boolean
     ) {
+        val latitude = location.latitude.toFloat()
+        val longitude = location.longitude.toFloat()
+
         val entity = LocationEntity(
-            location.latitude.toFloat(),
-            location.longitude.toFloat(),
+            latitude,
+            longitude,
             location.name,
             location.country,
             shouldBeFavorite
         )
 
-        val isLocationInDb = dao.isThereAlreadySuchLocation(
-            location.latitude.toFloat(),
-            location.longitude.toFloat()
-        )
+        val isLocationInDb = dao.isThereAlreadySuchLocation(latitude, longitude)
 
         if (isLocationInDb) {
             dao.updateLocations(entity)
         } else {
             dao.insertLocations(entity)
+        }
+
+        if (shouldBeFavorite) {
+            val forecastEntity = downloadCurrentForecastAndConvertItToEntity(latitude, longitude)
+            dao.insertCurrentForecast(forecastEntity)
         }
     }
 
@@ -74,31 +82,21 @@ class WeatherDatasourceManager(
             return flow { emptyList<FavoritesWeatherEntry>() }
         }
 
-        val downloadedForecasts = locations.map { location ->
-            val overallWeatherResponse =
-                weatherRepository.getWeather(
-                    location.latitude,
-                    location.longitude
-                )
-            val currentWeatherResponse = overallWeatherResponse?.currentWeatherResponse
+        val lastSyncTime = lastSyncSharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
+        val currentTime = System.currentTimeMillis()
 
-            CurrentForecastEntity(
-                location.latitude,
-                location.longitude,
-                currentWeatherResponse!!.currentTime,
-                currentWeatherResponse.temperature,
-                currentWeatherResponse.feelsLikeTemperature,
-                currentWeatherResponse.windSpeed,
-                currentWeatherResponse.windDegree,
-                currentWeatherResponse.pressure,
-                currentWeatherResponse.humidity,
-                currentWeatherResponse.dewPoint,
-                currentWeatherResponse.uvi,
-                currentWeatherResponse.description[0].description
-            )
+        if (lastSyncTime == 0L || currentTime - lastSyncTime > 18000000L) {
+
+            val downloadedForecasts = locations.map { location ->
+                downloadCurrentForecastAndConvertItToEntity(location.latitude, location.longitude)
+            }
+            dao.insertCurrentForecast(*downloadedForecasts.toTypedArray())
+
+            with(lastSyncSharedPrefs.edit()) {
+                putLong(lastSyncTimeSharedPrefsKey, System.currentTimeMillis())
+                apply()
+            }
         }
-
-        dao.insertCurrentForecast(*downloadedForecasts.toTypedArray())
 
         val forecastsFlow = dao.getCurrentForecastForAllFavoriteLocations()
             .map { map ->
@@ -116,5 +114,30 @@ class WeatherDatasourceManager(
             }
 
         return forecastsFlow
+    }
+
+    private suspend fun downloadCurrentForecastAndConvertItToEntity(
+        latitude: Float,
+        longitude: Float
+    ): CurrentForecastEntity {
+
+        val overallWeatherResponse =
+            weatherRepository.getWeather(latitude, longitude)
+        val currentWeatherResponse = overallWeatherResponse?.currentWeatherResponse
+
+        return CurrentForecastEntity(
+            latitude,
+            longitude,
+            currentWeatherResponse!!.currentTime,
+            currentWeatherResponse.temperature,
+            currentWeatherResponse.feelsLikeTemperature,
+            currentWeatherResponse.windSpeed,
+            currentWeatherResponse.windDegree,
+            currentWeatherResponse.pressure,
+            currentWeatherResponse.humidity,
+            currentWeatherResponse.dewPoint,
+            currentWeatherResponse.uvi,
+            currentWeatherResponse.description[0].description
+        )
     }
 }
