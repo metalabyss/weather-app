@@ -35,6 +35,7 @@ class LocationSearchFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.apply {
             locationSearchViewModel = viewModel
+            isLongTaskRunning = viewModel.isLongTaskRunning
             rvSearchResults.setHasFixedSize(true)
         }
         val adapter = LocationSearchRecyclerViewAdapter(viewModel)
@@ -42,11 +43,9 @@ class LocationSearchFragment : Fragment() {
         setupToolbar(binding.searchAppBar)
 
         viewModel.searchResult.observe(viewLifecycleOwner) {
-            binding.progressIndicator.visibility = View.GONE
             it?.let { adapter.submitList(it) }
         }
         viewModel.errorMessage.observe(viewLifecycleOwner) {
-            binding.progressIndicator.visibility = View.GONE
             binding.rvSearchResults.visibility = View.GONE
             binding.tvError.visibility = View.VISIBLE
         }
@@ -75,7 +74,6 @@ class LocationSearchFragment : Fragment() {
                 query?.let {
                     binding.tvError.visibility = View.GONE
                     binding.rvSearchResults.visibility = View.VISIBLE
-                    binding.progressIndicator.visibility = View.VISIBLE
                     viewModel.searchForLocations(query)
                 }
                 return true

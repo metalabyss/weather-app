@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import io.farafonova.weatherapp.ui.search.LocationSearchEntry
 import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
 import io.farafonova.weatherapp.ui.favorites.FavoritesWeatherEntry
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -15,24 +16,29 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
 
     val searchResult: MutableLiveData<List<LocationSearchEntry>> = MutableLiveData()
     val errorMessage: MutableLiveData<String> = MutableLiveData("")
+    val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
     suspend fun getFavorites(): StateFlow<List<FavoritesWeatherEntry>?> {
         return datasourceManager.getLatestFavoriteForecasts()
             .stateIn(viewModelScope, SharingStarted.Eagerly, null)
     }
 
-    fun searchForLocations(locationName: String) = viewModelScope.launch {
-        try {
-            searchResult.value = datasourceManager.findLocationsByName(locationName)
-            if (searchResult.value.isNullOrEmpty()) {
-                errorMessage.value = "Cannot find place with name $locationName."
+    fun searchForLocations(locationName: String) {
+        viewModelScope.launch {
+            executeLongTask {
+                try {
+                    searchResult.value = datasourceManager.findLocationsByName(locationName)
+                    if (searchResult.value.isNullOrEmpty()) {
+                        errorMessage.value = "Cannot find place with name $locationName."
+                    }
+                } catch (throwable: Throwable) {
+                    Log.e(
+                        WeatherApplicationViewModel::class.qualifiedName,
+                        "${throwable::class.simpleName}: ${throwable.message}"
+                    )
+                    errorMessage.value = throwable.message
+                }
             }
-        } catch (throwable: Throwable) {
-            Log.e(
-                WeatherApplicationViewModel::class.qualifiedName,
-                "${throwable::class.simpleName}: ${throwable.message}"
-            )
-            errorMessage.value = throwable.message
         }
     }
 
@@ -42,6 +48,12 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
 
     fun removeFromFavorites(location: LocationSearchEntry) = viewModelScope.launch {
         datasourceManager.changeFavoriteLocationState(location, false)
+    }
+
+    private suspend fun executeLongTask(task: suspend () -> Unit) {
+        isLongTaskRunning.value = true
+        task.invoke()
+        isLongTaskRunning.value = false
     }
 }
 
