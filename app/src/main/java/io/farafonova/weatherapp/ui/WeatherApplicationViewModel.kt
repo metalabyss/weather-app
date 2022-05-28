@@ -19,25 +19,26 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
     suspend fun getFavorites(): StateFlow<List<FavoritesWeatherEntry>?> {
-        return datasourceManager.getLatestFavoriteForecasts()
-            .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+        return executeLongTask { datasourceManager.getLatestFavoriteForecasts() }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null
+        )
     }
 
-    fun searchForLocations(locationName: String) {
-        viewModelScope.launch {
-            executeLongTask {
-                try {
-                    searchResult.value = datasourceManager.findLocationsByName(locationName)
-                    if (searchResult.value.isNullOrEmpty()) {
-                        errorMessage.value = "Cannot find place with name $locationName."
-                    }
-                } catch (throwable: Throwable) {
-                    Log.e(
-                        WeatherApplicationViewModel::class.qualifiedName,
-                        "${throwable::class.simpleName}: ${throwable.message}"
-                    )
-                    errorMessage.value = throwable.message
+    fun searchForLocations(locationName: String) = viewModelScope.launch {
+        executeLongTask {
+            try {
+                searchResult.value = datasourceManager.findLocationsByName(locationName)
+                if (searchResult.value.isNullOrEmpty()) {
+                    errorMessage.value = "Cannot find place with name $locationName."
                 }
+            } catch (throwable: Throwable) {
+                Log.e(
+                    WeatherApplicationViewModel::class.qualifiedName,
+                    "${throwable::class.simpleName}: ${throwable.message}"
+                )
+                errorMessage.value = throwable.message
             }
         }
     }
@@ -50,10 +51,11 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
         datasourceManager.changeFavoriteLocationState(location, false)
     }
 
-    private suspend fun executeLongTask(task: suspend () -> Unit) {
+    private suspend fun <T> executeLongTask(task: suspend () -> T): T {
         isLongTaskRunning.value = true
-        task.invoke()
+        val result = task.invoke()
         isLongTaskRunning.value = false
+        return result
     }
 }
 

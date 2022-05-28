@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 
 class WeatherFavoritesFragment : Fragment() {
-    private var binding: FragmentWeatherFavoritesBinding? = null
+    private lateinit var binding: FragmentWeatherFavoritesBinding
     private val viewModel: WeatherApplicationViewModel by activityViewModels {
         WeatherApplicationViewModelFactory((activity?.application as WeatherApplication).datasourceManager)
     }
@@ -31,11 +31,14 @@ class WeatherFavoritesFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentWeatherFavoritesBinding.inflate(layoutInflater, container, false)
-        binding!!.lifecycleOwner = viewLifecycleOwner
-        binding!!.weatherViewModel = viewModel
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            weatherViewModel = viewModel
+            isLongTaskRunning = viewModel.isLongTaskRunning
+        }
 
-        binding!!.appBar.inflateMenu(R.menu.toolbar_menu)
-        binding!!.appBar.setOnMenuItemClickListener {
+        binding.appBar.inflateMenu(R.menu.toolbar_menu)
+        binding.appBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_search -> {
                     parentFragmentManager.beginTransaction()
@@ -48,20 +51,15 @@ class WeatherFavoritesFragment : Fragment() {
             }
         }
 
-        binding!!.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.setHasFixedSize(true)
         val adapter = WeatherFavoritesRecyclerViewAdapter()
-        binding!!.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.getFavorites().collect {
                 adapter.submitList(it)
             }
         }
-        return binding!!.root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
+        return binding.root
     }
 }
