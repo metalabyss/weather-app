@@ -5,6 +5,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentWeatherFavoritesBinding
@@ -56,8 +57,16 @@ class WeatherFavoritesFragment : Fragment() {
         binding.recyclerView.adapter = adapter
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.getFavorites().collect {
+            viewModel.getFavorites()?.collect {
                 adapter.submitList(it)
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.errorMessage.collect {
+                context?.let { c -> MaterialAlertDialogBuilder(c)
+                    .setMessage(it)
+                    .setPositiveButton(R.string.button_text_ok) { dialog, which -> dialog.dismiss() }
+                    .show() }
             }
         }
         return binding.root

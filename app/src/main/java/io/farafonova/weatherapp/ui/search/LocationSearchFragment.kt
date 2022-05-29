@@ -45,9 +45,14 @@ class LocationSearchFragment : Fragment() {
         viewModel.searchResult.observe(viewLifecycleOwner) {
             it?.let { adapter.submitList(it) }
         }
-        viewModel.errorMessage.observe(viewLifecycleOwner) {
-            binding.rvSearchResults.visibility = View.GONE
-            binding.tvError.visibility = View.VISIBLE
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.errorMessage.collect {
+                context?.let { c -> MaterialAlertDialogBuilder(c)
+                    .setMessage(it)
+                    .setPositiveButton(R.string.button_text_ok) { dialog, which -> dialog.dismiss() }
+                    .show() }
+            }
         }
 
         return binding.root
@@ -71,11 +76,7 @@ class LocationSearchFragment : Fragment() {
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let {
-                    binding.tvError.visibility = View.GONE
-                    binding.rvSearchResults.visibility = View.VISIBLE
-                    viewModel.searchForLocations(query)
-                }
+                query?.let { viewModel.searchForLocations(query) }
                 return true
             }
 

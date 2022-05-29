@@ -42,14 +42,17 @@
             android:id="@+id/tv_error"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:paddingTop="?attr/actionBarSize"
-            android:text="@{locationSearchViewModel.errorMessage}"/>
+            android:text="@string/location_search_no_results_message"
+            android:visibility="@{locationSearchViewModel.searchResult.empty ? View.VISIBLE : View.GONE}" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_search_results"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingTop="?attr/actionBarSize"
+            android:visibility="@{!locationSearchViewModel.searchResult.empty ? View.VISIBLE : View.GONE}"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
 

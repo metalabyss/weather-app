@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import io.farafonova.weatherapp.ui.search.LocationSearchEntry
 import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
 import io.farafonova.weatherapp.ui.favorites.FavoritesWeatherEntry
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +16,18 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
     ViewModel() {
 
     val searchResult: MutableLiveData<List<LocationSearchEntry>> = MutableLiveData()
-    val errorMessage: MutableLiveData<String> = MutableLiveData("")
+    val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
-    suspend fun getFavorites(): StateFlow<List<FavoritesWeatherEntry>?> {
-        return executeLongTask { datasourceManager.getLatestFavoriteForecasts() }.stateIn(
+    suspend fun getFavorites(): StateFlow<List<FavoritesWeatherEntry>?>? {
+        return executeLongTask({ datasourceManager.getLatestFavoriteForecasts() },
+            {
+                it.localizedMessage?.let { e -> errorMessage.emit(e) }
+                Log.e(
+                    WeatherApplicationViewModel::class.qualifiedName,
+                    "${it::class.simpleName}: ${it.message}"
+                )
+            })?.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
             null
@@ -27,20 +35,15 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
     }
 
     fun searchForLocations(locationName: String) = viewModelScope.launch {
-        executeLongTask {
-            try {
-                searchResult.value = datasourceManager.findLocationsByName(locationName)
-                if (searchResult.value.isNullOrEmpty()) {
-                    errorMessage.value = "Cannot find place with name $locationName."
-                }
-            } catch (throwable: Throwable) {
-                Log.e(
-                    WeatherApplicationViewModel::class.qualifiedName,
-                    "${throwable::class.simpleName}: ${throwable.message}"
-                )
-                errorMessage.value = throwable.message
-            }
-        }
+        executeLongTask({
+            searchResult.value = datasourceManager.findLocationsByName(locationName)
+        }, {
+            it.localizedMessage?.let { e -> errorMessage.emit(e) }
+            Log.e(
+                WeatherApplicationViewModel::class.qualifiedName,
+                "${it::class.simpleName}: ${it.message}"
+            )
+        })
     }
 
     fun addToFavorites(location: LocationSearchEntry) = viewModelScope.launch {
@@ -51,9 +54,17 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
         datasourceManager.changeFavoriteLocationState(location, false)
     }
 
-    private suspend fun <T> executeLongTask(task: suspend () -> T): T {
+    private suspend fun <T> executeLongTask(
+        task: suspend () -> T,
+        exceptionHandler: suspend (Throwable) -> Unit
+    ): T? {
         isLongTaskRunning.value = true
-        val result = task.invoke()
+        val result = try {
+            task.invoke()
+        } catch (throwable: Throwable) {
+            exceptionHandler.invoke(throwable)
+            null
+        }
         isLongTaskRunning.value = false
         return result
     }

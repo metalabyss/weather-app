@@ -10,4 +10,6 @@
     <string name="search_hint">Search for weather in places</string>
     <string name="searched_location_state_template_string">%1$s, %2$s</string>
     <string name="favorites_list_item_temperature_template_string">%1$s°C</string>
+    <string name="button_text_ok">OK</string>
+    <string name="location_search_no_results_message">No results.</string>
 </resources>
