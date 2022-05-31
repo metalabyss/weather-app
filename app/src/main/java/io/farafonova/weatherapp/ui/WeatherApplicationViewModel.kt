@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasourceManager) :
     ViewModel() {
 
-    val searchResult: MutableLiveData<List<LocationSearchEntry>> = MutableLiveData()
+    val searchResult by lazy { MutableStateFlow<List<LocationSearchEntry>?>(null) }
     val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
