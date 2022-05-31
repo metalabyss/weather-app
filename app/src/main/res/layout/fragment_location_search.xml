@@ -10,6 +10,9 @@
         <variable
             name="isLongTaskRunning"
             type="kotlinx.coroutines.flow.MutableStateFlow&lt;Boolean>" />
+        <variable
+            name="queryTextListener"
+            type="android.widget.SearchView.OnQueryTextListener" />
 
         <import type="android.view.View" />
     </data>
@@ -27,7 +30,22 @@
                 android:id="@+id/search_app_bar"
                 style="@style/Widget.MaterialComponents.Toolbar.Surface"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize" />
+                android:layout_height="?attr/actionBarSize"
+                app:contentInsetStart="0dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_24">
+
+            <SearchView
+                android:id="@+id/search_view"
+                android:inputType="textCapWords"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:maxWidth="10000dp"
+                android:iconifiedByDefault="false"
+                android:onQueryTextSubmit="@{query -> queryTextListener.onQueryTextSubmit(query)}"
+                android:onQueryTextChange="@{query -> queryTextListener.onQueryTextChange(query)}"
+                android:queryBackground="@android:color/transparent" />
+            </androidx.appcompat.widget.Toolbar>
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/progress_indicator"
