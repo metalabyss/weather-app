@@ -47,11 +47,17 @@ class LocationSearchFragment : Fragment() {
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     // Here is where we are going to implement the filter logic
+                        if (newText?.isEmpty()!!) {
+                            viewModel.clearSearchResult()
+                        }
                     return false
                 }
             }
             rvSearchResults.setHasFixedSize(true)
-            searchAppBar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+            searchAppBar.setNavigationOnClickListener {
+                parentFragmentManager.popBackStack()
+                viewModel.clearSearchResult()
+            }
         }
         val adapter = LocationSearchRecyclerViewAdapter(viewModel)
         binding.rvSearchResults.adapter = adapter
