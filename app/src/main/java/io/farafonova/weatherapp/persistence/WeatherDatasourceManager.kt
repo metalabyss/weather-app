@@ -85,7 +85,7 @@ class WeatherDatasourceManager(
         val lastSyncTime = lastSyncSharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
         val currentTime = System.currentTimeMillis()
 
-        if (lastSyncTime == 0L || currentTime - lastSyncTime > 18000000L) {
+        if (lastSyncTime == 0L || currentTime - lastSyncTime > 1800000L) {
 
             val downloadedForecasts = locations.map { location ->
                 downloadCurrentForecastAndConvertItToEntity(location.latitude, location.longitude)
