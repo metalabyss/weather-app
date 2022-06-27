@@ -11,4 +11,9 @@ data class LocationEntity(
     @ColumnInfo(name = "country") val countryCode: String,
 //    @ColumnInfo(name = "timezone_offset") val timeZoneOffset: Int,
     @ColumnInfo(name = "in_favorites", defaultValue = "FALSE") var inFavorites: Boolean
-)
+) {
+    init {
+        require(latitude >= -90.0 && latitude <= 90.0)
+        require(longitude >= -180.0 && longitude <= 180.0)
+    }
+}
