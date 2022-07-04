@@ -33,7 +33,4 @@ interface ForecastDao {
 
     @Query("SELECT COUNT(*) > 0 FROM location WHERE lat = :latitude AND lon = :longitude")
     suspend fun isThereAlreadySuchLocation(latitude: Float, longitude: Float): Boolean
-
-    @Query("SELECT * FROM location")
-    suspend fun getAllLocations(): List<LocationEntity>
 }
