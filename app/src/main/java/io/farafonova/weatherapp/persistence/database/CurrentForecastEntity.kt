@@ -27,4 +27,14 @@ data class CurrentForecastEntity(
     @ColumnInfo(name = "dew_point") val dewPoint: Float,
     @ColumnInfo val uvi: Float,
     @ColumnInfo val description: String
-)
+) {
+    init {
+        require(latitude >= -90.0 && latitude <= 90.0)
+        require(longitude >= -180.0 && longitude <= 180.0)
+        require(windSpeed >= 0.0)
+        require(windDegree in 0..359)
+        require(pressure in 870..1085)
+        require(humidity in 0..100)
+        require(uvi >= 0.0)
+    }
+}
