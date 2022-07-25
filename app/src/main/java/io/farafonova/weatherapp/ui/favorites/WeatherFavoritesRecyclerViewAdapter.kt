@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.farafonova.weatherapp.databinding.LocationListItemBinding
 
-class WeatherFavoritesRecyclerViewAdapter :
+class WeatherFavoritesRecyclerViewAdapter(private val onFavoriteClickListener: (String, String) -> Unit) :
     ListAdapter<FavoritesWeatherEntry, WeatherFavoritesViewHolder>(FavoritesWeatherEntryComparator()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeatherFavoritesViewHolder {
@@ -18,15 +18,16 @@ class WeatherFavoritesRecyclerViewAdapter :
 
     override fun onBindViewHolder(holder: WeatherFavoritesViewHolder, position: Int) {
         val weatherEntry = getItem(position)
-        holder.bind(weatherEntry)
+        holder.bind(weatherEntry, onFavoriteClickListener)
     }
 }
 
 class WeatherFavoritesViewHolder(private val binding: LocationListItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: FavoritesWeatherEntry) {
+    fun bind(item: FavoritesWeatherEntry, onClickListener: (String, String) -> Unit) {
         binding.weatherEntry = item
+        binding.root.setOnClickListener { onClickListener(item.latitude, item.longitude) }
         binding.executePendingBindings()
     }
 }

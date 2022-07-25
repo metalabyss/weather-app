@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.farafonova.weatherapp.R
@@ -11,6 +12,7 @@ import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentWeatherFavoritesBinding
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
+import io.farafonova.weatherapp.ui.current_forecast.CurrentForecastFragment
 import io.farafonova.weatherapp.ui.search.LocationSearchFragment
 import kotlinx.coroutines.launch
 
@@ -53,7 +55,21 @@ class WeatherFavoritesFragment : Fragment() {
         }
 
         binding.recyclerView.setHasFixedSize(true)
-        val adapter = WeatherFavoritesRecyclerViewAdapter()
+
+        val onFavoriteClickListener = { latitude: String, longitude: String ->
+            val detailsFragment = CurrentForecastFragment()
+            val bundle = Bundle().apply {
+                putString("LOCATION_LATITUDE", latitude)
+                putString("LOCATION_LONGITUDE", longitude)
+            }
+            setFragmentResult("SELECTED_FAVORITE", bundle)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.container, detailsFragment)
+                .addToBackStack(null)
+                .commit()
+            Unit
+        }
+        val adapter = WeatherFavoritesRecyclerViewAdapter(onFavoriteClickListener)
         binding.recyclerView.adapter = adapter
 
         viewLifecycleOwner.lifecycleScope.launch {

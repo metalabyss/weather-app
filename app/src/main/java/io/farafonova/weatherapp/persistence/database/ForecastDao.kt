@@ -18,7 +18,7 @@ interface ForecastDao {
     suspend fun getCurrentForecastForSpecificLocation(
         latitude: Float,
         longitude: Float
-    ): CurrentForecastEntity
+    ): CurrentForecastEntity?
 
     @Query("SELECT * FROM location WHERE in_favorites = 1")
     suspend fun getAllFavoriteLocations(): List<LocationEntity>
@@ -33,4 +33,7 @@ interface ForecastDao {
 
     @Query("SELECT COUNT(*) > 0 FROM location WHERE lat = :latitude AND lon = :longitude")
     suspend fun isThereAlreadySuchLocation(latitude: Float, longitude: Float): Boolean
+
+    @Query("SELECT * FROM location WHERE lat = :latitude AND lon = :longitude")
+    suspend fun getSpecificLocation(latitude: Float, longitude: Float): LocationEntity?
 }

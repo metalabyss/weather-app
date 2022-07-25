@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import io.farafonova.weatherapp.ui.search.LocationSearchEntry
 import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
+import io.farafonova.weatherapp.ui.current_forecast.CurrentForecastData
 import io.farafonova.weatherapp.ui.favorites.FavoritesWeatherEntry
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,17 +17,14 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
     ViewModel() {
 
     val searchResult by lazy { MutableStateFlow<List<LocationSearchEntry>?>(null) }
+    val singleDetailedForecast by lazy { MutableStateFlow<CurrentForecastData?>(null) }
     val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
     suspend fun getFavorites(): StateFlow<List<FavoritesWeatherEntry>?>? {
         return executeLongTask({ datasourceManager.getLatestFavoriteForecasts() },
             {
-                it.localizedMessage?.let { e -> errorMessage.emit(e) }
-                Log.e(
-                    WeatherApplicationViewModel::class.qualifiedName,
-                    "${it::class.simpleName}: ${it.message}"
-                )
+                printErrorMessageToLogAndShowItToUser(it)
             })?.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
@@ -38,11 +36,7 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
         executeLongTask({
             searchResult.value = datasourceManager.findLocationsByName(locationName)
         }, {
-            it.localizedMessage?.let { e -> errorMessage.emit(e) }
-            Log.e(
-                WeatherApplicationViewModel::class.qualifiedName,
-                "${it::class.simpleName}: ${it.message}"
-            )
+            printErrorMessageToLogAndShowItToUser(it)
         })
     }
 
@@ -58,6 +52,16 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
         datasourceManager.changeFavoriteLocationState(location, false)
     }
 
+    suspend fun getCurrentForecastForSpecificLocation(latitude: String, longitude: String) =
+        viewModelScope.launch {
+            executeLongTask({
+                datasourceManager.getCurrentForecastForSpecificLocation(latitude, longitude)
+                    .collect { forecast -> singleDetailedForecast.value = forecast }
+            }, {
+                printErrorMessageToLogAndShowItToUser(it)
+            })
+        }
+
     private suspend fun <T> executeLongTask(
         task: suspend () -> T,
         exceptionHandler: suspend (Throwable) -> Unit
@@ -71,6 +75,14 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
         }
         isLongTaskRunning.value = false
         return result
+    }
+
+    private suspend fun printErrorMessageToLogAndShowItToUser(throwable: Throwable) {
+        throwable.localizedMessage?.let { e -> errorMessage.emit(e) }
+        Log.e(
+            WeatherApplicationViewModel::class.qualifiedName,
+            "${throwable::class.simpleName}: ${throwable.message}"
+        )
     }
 }
 

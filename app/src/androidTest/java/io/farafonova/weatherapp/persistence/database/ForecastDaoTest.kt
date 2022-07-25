@@ -240,4 +240,10 @@ class ForecastDaoTest {
         val forecastFromDb = flow.first()[somePlace]
         assertEquals(forecast, forecastFromDb)
     }
+
+    @Test
+    fun whenTryingToGetNonexistentLocation_expectNull() = runTest {
+        val location = forecastDao.getSpecificLocation(0f, 0f)
+        assertEquals(null, location)
+    }
 }

@@ -7,10 +7,16 @@ import io.farafonova.weatherapp.persistence.database.LocationEntity
 import io.farafonova.weatherapp.persistence.network.geocoding.GeocodingRepository
 import io.farafonova.weatherapp.ui.search.LocationSearchEntry
 import io.farafonova.weatherapp.persistence.network.weather.WeatherRepository
+import io.farafonova.weatherapp.ui.current_forecast.Country
+import io.farafonova.weatherapp.ui.current_forecast.CurrentForecastData
 import io.farafonova.weatherapp.ui.favorites.FavoritesWeatherEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 class WeatherDatasourceManager(
     private val dao: ForecastDao,
@@ -139,5 +145,44 @@ class WeatherDatasourceManager(
             currentWeatherResponse.uvi,
             currentWeatherResponse.description[0].description
         )
+    }
+
+    suspend fun getCurrentForecastForSpecificLocation(
+        latitude: String,
+        longitude: String
+    ): Flow<CurrentForecastData?> {
+
+        val location = dao.getSpecificLocation(latitude.toFloat(), longitude.toFloat())
+
+        val currentForecast =
+            dao.getCurrentForecastForSpecificLocation(latitude.toFloat(), longitude.toFloat())
+
+        val currentForecastData = currentForecast?.let {
+            val forecastTime = Instant.ofEpochSecond(it.forecastTime.toLong())
+                .atZone(TimeZone.getDefault().toZoneId())
+
+            val formatter = DateTimeFormatter.ofPattern("dd.MM, HH:mm")
+
+            location?.let {
+                CurrentForecastData(
+                    currentForecast.latitude.toString(),
+                    currentForecast.longitude.toString(),
+                    location.locationName,
+                    Country.withCountryCode(location.countryCode)!!.flag(),
+                    currentForecast.temperature.toInt(),
+                    currentForecast.feelsLikeTemperature.toInt(),
+                    forecastTime.format(formatter),
+                    currentForecast.windSpeed,
+                    currentForecast.windDegree,
+                    currentForecast.pressure,
+                    currentForecast.humidity,
+                    currentForecast.dewPoint.toInt(),
+                    currentForecast.uvi,
+                    currentForecast.description
+                )
+            }
+        }
+
+        return flowOf(currentForecastData)
     }
 }
