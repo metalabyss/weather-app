@@ -1,15 +1,13 @@
 package io.farafonova.weatherapp.persistence
 
 import android.content.SharedPreferences
-import io.farafonova.weatherapp.persistence.database.CurrentForecastEntity
 import io.farafonova.weatherapp.persistence.database.ForecastDao
-import io.farafonova.weatherapp.persistence.database.LocationEntity
 import io.farafonova.weatherapp.persistence.network.geocoding.GeocodingRepository
-import io.farafonova.weatherapp.ui.search.LocationSearchEntry
+import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.persistence.network.weather.WeatherRepository
-import io.farafonova.weatherapp.ui.current_forecast.Country
-import io.farafonova.weatherapp.ui.current_forecast.CurrentForecastData
-import io.farafonova.weatherapp.ui.favorites.FavoritesWeatherEntry
+import io.farafonova.weatherapp.persistence.database.CurrentForecastEntity
+import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
+import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -34,41 +32,20 @@ class WeatherDatasourceManager(
         GeocodingRepository(geocodingApiBaseUrl, apiKey)
     }
 
-    suspend fun findLocationsByName(name: String): List<LocationSearchEntry>? {
+    suspend fun findLocationsByName(name: String): List<Location>? {
         return geocodingRepository.getLocationByName(name)
             ?.map {
-                val location = dao.getAllFavoriteLocations()
-                    .find { locationEntity ->
-                        locationEntity.latitude == it.latitude.toFloat()
-                                && locationEntity.longitude == it.longitude.toFloat()
-                    }
-                LocationSearchEntry(
-                    it.latitude,
-                    it.longitude,
-                    it.name,
-                    it.state ?: "",
-                    it.countryCode,
-                    location?.inFavorites ?: false
-                )
+                val inFavorites =
+                    dao.isLocationAlreadyInFavorites(it.latitude.toFloat(), it.longitude.toFloat())
+                val searchEntry = it.toLocationModel()
+                searchEntry.inFavorites = inFavorites
+                searchEntry
             }
     }
 
-    suspend fun changeFavoriteLocationState(
-        location: LocationSearchEntry,
-        shouldBeFavorite: Boolean
-    ) {
-        val latitude = location.latitude.toFloat()
-        val longitude = location.longitude.toFloat()
-
-        val entity = LocationEntity(
-            latitude,
-            longitude,
-            location.name,
-            location.country,
-            shouldBeFavorite
-        )
-
-        val isLocationInDb = dao.isThereAlreadySuchLocation(latitude, longitude)
+    suspend fun changeFavoriteLocationState(location: Location) {
+        val entity = location.toLocationEntity()
+        val isLocationInDb = dao.isThereAlreadySuchLocation(entity.latitude, entity.longitude)
 
         if (isLocationInDb) {
             dao.updateLocations(entity)
@@ -76,16 +53,16 @@ class WeatherDatasourceManager(
             dao.insertLocations(entity)
         }
 
-        if (shouldBeFavorite) {
-            val forecastEntity = downloadCurrentForecastAndConvertItToEntity(latitude, longitude)
+        if (entity.inFavorites) {
+            val forecastEntity = getLatestCurrentForecast(entity.latitude, entity.longitude)
             dao.insertCurrentForecast(forecastEntity)
         }
     }
 
-    suspend fun getLatestFavoriteForecasts(): Flow<List<FavoritesWeatherEntry>> {
+    suspend fun getLatestFavoriteForecasts(): Flow<List<BriefCurrentForecastWithLocation>> {
         val locations = dao.getAllFavoriteLocations()
         if (locations.isEmpty()) {
-            return flow { emptyList<FavoritesWeatherEntry>() }
+            return flow { emptyList<BriefCurrentForecastWithLocation>() }
         }
 
         val lastSyncTime = lastSyncSharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
@@ -94,7 +71,7 @@ class WeatherDatasourceManager(
         if (lastSyncTime == 0L || currentTime - lastSyncTime > 1800000L) {
 
             val downloadedForecasts = locations.map { location ->
-                downloadCurrentForecastAndConvertItToEntity(location.latitude, location.longitude)
+                getLatestCurrentForecast(location.latitude, location.longitude)
             }
             dao.insertCurrentForecast(*downloadedForecasts.toTypedArray())
 
@@ -110,11 +87,9 @@ class WeatherDatasourceManager(
                     val location = entry.key
                     val forecast = entry.value
 
-                    FavoritesWeatherEntry(
-                        location.latitude.toString(),
-                        location.longitude.toString(),
-                        location.locationName,
-                        forecast.temperature.toInt()
+                    BriefCurrentForecastWithLocation(
+                        forecast.temperature.toInt(),
+                        location.toLocationModel()
                     )
                 }
             }
@@ -122,53 +97,37 @@ class WeatherDatasourceManager(
         return forecastsFlow
     }
 
-    private suspend fun downloadCurrentForecastAndConvertItToEntity(
+    private suspend fun getLatestCurrentForecast(
         latitude: Float,
         longitude: Float
     ): CurrentForecastEntity {
 
         val overallWeatherResponse =
             weatherRepository.getWeather(latitude, longitude)
-        val currentWeatherResponse = overallWeatherResponse?.currentWeatherResponse
 
-        return CurrentForecastEntity(
+        return overallWeatherResponse!!.currentWeatherResponse.toCurrentForecastEntity(
             latitude,
-            longitude,
-            currentWeatherResponse!!.currentTime,
-            currentWeatherResponse.temperature,
-            currentWeatherResponse.feelsLikeTemperature,
-            currentWeatherResponse.windSpeed,
-            currentWeatherResponse.windDegree,
-            currentWeatherResponse.pressure,
-            currentWeatherResponse.humidity,
-            currentWeatherResponse.dewPoint,
-            currentWeatherResponse.uvi,
-            currentWeatherResponse.description[0].description
+            longitude
         )
     }
 
     suspend fun getCurrentForecastForSpecificLocation(
-        latitude: String,
-        longitude: String
-    ): Flow<CurrentForecastData?> {
-
-        val location = dao.getSpecificLocation(latitude.toFloat(), longitude.toFloat())
+        latitude: Float,
+        longitude: Float
+    ): Flow<CurrentForecastWithLocation?> {
+        val location = dao.getSpecificLocation(latitude, longitude)
 
         val currentForecast =
-            dao.getCurrentForecastForSpecificLocation(latitude.toFloat(), longitude.toFloat())
+            dao.getCurrentForecastForSpecificLocation(latitude, longitude)
 
-        val currentForecastData = currentForecast?.let {
+        val currentForecastWithLocation = currentForecast?.let {
             val forecastTime = Instant.ofEpochSecond(it.forecastTime.toLong())
                 .atZone(TimeZone.getDefault().toZoneId())
 
             val formatter = DateTimeFormatter.ofPattern("dd.MM, HH:mm")
 
             location?.let {
-                CurrentForecastData(
-                    currentForecast.latitude.toString(),
-                    currentForecast.longitude.toString(),
-                    location.locationName,
-                    Country.withCountryCode(location.countryCode)!!.flag(),
+                CurrentForecastWithLocation(
                     currentForecast.temperature.toInt(),
                     currentForecast.feelsLikeTemperature.toInt(),
                     forecastTime.format(formatter),
@@ -178,11 +137,12 @@ class WeatherDatasourceManager(
                     currentForecast.humidity,
                     currentForecast.dewPoint.toInt(),
                     currentForecast.uvi,
-                    currentForecast.description
+                    currentForecast.description,
+                    location.toLocationModel()
                 )
             }
         }
 
-        return flowOf(currentForecastData)
+        return flowOf(currentForecastWithLocation)
     }
 }

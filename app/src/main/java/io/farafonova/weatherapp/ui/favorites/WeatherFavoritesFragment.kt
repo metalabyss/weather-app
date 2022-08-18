@@ -56,11 +56,11 @@ class WeatherFavoritesFragment : Fragment() {
 
         binding.recyclerView.setHasFixedSize(true)
 
-        val onFavoriteClickListener = { latitude: String, longitude: String ->
+        val onFavoriteClickListener = { latitude: Float, longitude: Float ->
             val detailsFragment = CurrentForecastFragment()
             val bundle = Bundle().apply {
-                putString("LOCATION_LATITUDE", latitude)
-                putString("LOCATION_LONGITUDE", longitude)
+                putFloat("LOCATION_LATITUDE", latitude)
+                putFloat("LOCATION_LONGITUDE", longitude)
             }
             setFragmentResult("SELECTED_FAVORITE", bundle)
             parentFragmentManager.beginTransaction()

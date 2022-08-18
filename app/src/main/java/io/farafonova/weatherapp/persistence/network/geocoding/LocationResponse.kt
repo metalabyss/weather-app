@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 /* Location is accurate to 6 digits after the decimal point due to API design. */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class Location(
+data class LocationResponse(
     @JsonProperty("name") val name: String,
     @JsonProperty("lat") val latitude: String,
     @JsonProperty("lon") val longitude: String,

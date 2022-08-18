@@ -1,4 +1,4 @@
-package io.farafonova.weatherapp.ui.current_forecast
+package io.farafonova.weatherapp.domain.model
 
 enum class Country(private val twoLetterCode: String, private val flag: String) {
     AFGHANISTAN("AF", "🇦🇫"),
@@ -252,10 +252,13 @@ enum class Country(private val twoLetterCode: String, private val flag: String) 
     KOSOVO("XK", "🇽🇰");
 
     companion object {
-        fun withCountryCode(countryCode: String): Country? {
+        fun withCountryCode(countryCode: String): Country {
             return values().find { country -> country.twoLetterCode == countryCode }
+                ?: throw IllegalArgumentException("There is no country with code $countryCode.")
         }
     }
 
     fun flag(): String = this.flag
+
+    fun twoLetterCode(): String = this.twoLetterCode
 }

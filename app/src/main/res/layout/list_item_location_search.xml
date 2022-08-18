@@ -6,7 +6,7 @@
     <data>
         <variable
             name="searchEntry"
-            type="io.farafonova.weatherapp.ui.search.LocationSearchEntry" />
+            type="io.farafonova.weatherapp.domain.model.Location" />
         <variable
             name="parentViewModel"
             type="io.farafonova.weatherapp.ui.WeatherApplicationViewModel" />
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginStart="16dp"
-            android:text="@{searchEntry.state.empty ? searchEntry.country : @string/searched_location_state_template_string(searchEntry.state, searchEntry.country)}"
+            android:text="@{searchEntry.state.empty ? searchEntry.country.flag() : @string/searched_location_state_template_string(searchEntry.state, searchEntry.country.flag())}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tb_favorite"
             tools:text="Novosibirsk Oblast, RU" />
@@ -42,14 +42,14 @@
         <CheckBox
             android:id="@+id/tb_favorite"
             android:button="@drawable/ic_favorite_inset"
-            android:checked="@{searchEntry.isSelected}"
+            android:checked="@{searchEntry.inFavorites}"
             android:minWidth="48dp"
             android:minHeight="48dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="8dp"
-            app:compoundButtonOnClick="@{(_, isChecked) -> isChecked ? parentViewModel.addToFavorites(searchEntry) : parentViewModel.removeFromFavorites(searchEntry)}"
+            app:compoundButtonOnClick="@{(_, isChecked) -> parentViewModel.addOrRemoveFromFavorites(searchEntry, isChecked)}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 

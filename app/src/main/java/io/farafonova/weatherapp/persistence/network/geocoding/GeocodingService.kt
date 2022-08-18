@@ -1,6 +1,5 @@
 package io.farafonova.weatherapp.persistence.network.geocoding
 
-import io.farafonova.weatherapp.persistence.network.geocoding.Location
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -11,5 +10,5 @@ interface GeocodingService {
         @Query("q") name: String,
         @Query("limit") maxNumberOfLocations: Int,
         @Query("appid") apiKey: String
-    ): Response<List<Location>>
+    ): Response<List<LocationResponse>>
 }

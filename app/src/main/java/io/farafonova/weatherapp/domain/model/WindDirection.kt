@@ -1,4 +1,4 @@
-package io.farafonova.weatherapp.ui.current_forecast
+package io.farafonova.weatherapp.domain.model
 
 import kotlin.math.roundToInt
 

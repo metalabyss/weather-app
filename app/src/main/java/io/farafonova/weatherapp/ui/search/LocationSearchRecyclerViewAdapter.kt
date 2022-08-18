@@ -5,14 +5,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import io.farafonova.weatherapp.databinding.LocationSearchResultItemBinding
+import io.farafonova.weatherapp.databinding.ListItemLocationSearchBinding
+import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 
 class LocationSearchRecyclerViewAdapter(private val parentViewModel: WeatherApplicationViewModel) :
-    ListAdapter<LocationSearchEntry, LocationSearchViewHolder>(LocationSearchEntryComparator()) {
+    ListAdapter<Location, LocationSearchViewHolder>(LocationSearchEntryComparator()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationSearchViewHolder {
-        val binding = LocationSearchResultItemBinding.inflate(
+        val binding = ListItemLocationSearchBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -27,9 +28,9 @@ class LocationSearchRecyclerViewAdapter(private val parentViewModel: WeatherAppl
 }
 
 
-class LocationSearchViewHolder(private val binding: LocationSearchResultItemBinding) :
+class LocationSearchViewHolder(private val binding: ListItemLocationSearchBinding) :
     RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: LocationSearchEntry, parentViewModel: WeatherApplicationViewModel) {
+        fun bind(item: Location, parentViewModel: WeatherApplicationViewModel) {
             binding.searchEntry = item
             binding.parentViewModel = parentViewModel
             binding.executePendingBindings()
@@ -37,17 +38,17 @@ class LocationSearchViewHolder(private val binding: LocationSearchResultItemBind
     }
 
 
-class LocationSearchEntryComparator : DiffUtil.ItemCallback<LocationSearchEntry>() {
+class LocationSearchEntryComparator : DiffUtil.ItemCallback<Location>() {
     override fun areItemsTheSame(
-        oldItem: LocationSearchEntry,
-        newItem: LocationSearchEntry
+        oldItem: Location,
+        newItem: Location
     ): Boolean {
         return oldItem == newItem
     }
 
     override fun areContentsTheSame(
-        oldItem: LocationSearchEntry,
-        newItem: LocationSearchEntry
+        oldItem: Location,
+        newItem: Location
     ): Boolean {
         return oldItem == newItem
     }

@@ -5,14 +5,21 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import io.farafonova.weatherapp.databinding.LocationListItemBinding
+import io.farafonova.weatherapp.databinding.ListItemFavoriteLocationBinding
+import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
 
-class WeatherFavoritesRecyclerViewAdapter(private val onFavoriteClickListener: (String, String) -> Unit) :
-    ListAdapter<FavoritesWeatherEntry, WeatherFavoritesViewHolder>(FavoritesWeatherEntryComparator()) {
+class WeatherFavoritesRecyclerViewAdapter(private val onFavoriteClickListener: (Float, Float) -> Unit) :
+    ListAdapter<BriefCurrentForecastWithLocation, WeatherFavoritesViewHolder>(
+        FavoritesWeatherEntryComparator()
+    ) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeatherFavoritesViewHolder {
         val binding =
-            LocationListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ListItemFavoriteLocationBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
         return WeatherFavoritesViewHolder(binding)
     }
 
@@ -22,27 +29,33 @@ class WeatherFavoritesRecyclerViewAdapter(private val onFavoriteClickListener: (
     }
 }
 
-class WeatherFavoritesViewHolder(private val binding: LocationListItemBinding) :
+class WeatherFavoritesViewHolder(private val binding: ListItemFavoriteLocationBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: FavoritesWeatherEntry, onClickListener: (String, String) -> Unit) {
+    fun bind(item: BriefCurrentForecastWithLocation, onClickListener: (Float, Float) -> Unit) {
         binding.weatherEntry = item
-        binding.root.setOnClickListener { onClickListener(item.latitude, item.longitude) }
+        binding.root.setOnClickListener {
+            onClickListener(
+                item.location.latitude,
+                item.location.longitude
+            )
+        }
         binding.executePendingBindings()
     }
 }
 
-class FavoritesWeatherEntryComparator : DiffUtil.ItemCallback<FavoritesWeatherEntry>() {
+class FavoritesWeatherEntryComparator : DiffUtil.ItemCallback<BriefCurrentForecastWithLocation>() {
     override fun areItemsTheSame(
-        oldItem: FavoritesWeatherEntry,
-        newItem: FavoritesWeatherEntry
+        oldItem: BriefCurrentForecastWithLocation,
+        newItem: BriefCurrentForecastWithLocation
     ): Boolean {
-        return (oldItem.latitude == newItem.latitude) && (oldItem.longitude == newItem.longitude)
+        return (oldItem.location.latitude == newItem.location.latitude)
+                && (oldItem.location.latitude == newItem.location.latitude)
     }
 
     override fun areContentsTheSame(
-        oldItem: FavoritesWeatherEntry,
-        newItem: FavoritesWeatherEntry
+        oldItem: BriefCurrentForecastWithLocation,
+        newItem: BriefCurrentForecastWithLocation
     ): Boolean {
         return oldItem == newItem
     }

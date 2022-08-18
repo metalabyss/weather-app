@@ -23,13 +23,11 @@ class CurrentForecastFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFragmentResultListener("SELECTED_FAVORITE") { _, bundle ->
-            val latitude = bundle.getString("LOCATION_LATITUDE")
-            val longitude = bundle.getString("LOCATION_LONGITUDE")
+            val latitude = bundle.getFloat("LOCATION_LATITUDE")
+            val longitude = bundle.getFloat("LOCATION_LONGITUDE")
 
             viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                if (latitude != null && longitude != null) {
-                    viewModel.getCurrentForecastForSpecificLocation(latitude, longitude)
-                }
+                viewModel.getCurrentForecastForSpecificLocation(latitude, longitude)
             }
         }
     }

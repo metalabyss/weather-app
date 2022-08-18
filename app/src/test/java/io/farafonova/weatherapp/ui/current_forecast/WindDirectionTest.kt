@@ -1,5 +1,6 @@
 package io.farafonova.weatherapp.ui.current_forecast
 
+import io.farafonova.weatherapp.domain.model.WindDirection
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

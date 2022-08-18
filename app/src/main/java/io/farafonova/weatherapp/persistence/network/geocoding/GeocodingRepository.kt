@@ -14,7 +14,7 @@ class GeocodingRepository(baseUrl: String, private val apiKey: String) {
 
     private val geocodingService: GeocodingService = retrofit.create(GeocodingService::class.java)
 
-    suspend fun getLocationByName(locationName: String): List<Location>? {
+    suspend fun getLocationByName(locationName: String): List<LocationResponse>? {
         val response =
             geocodingService.findLocationByName(locationName, maxNumberOfLocations, apiKey)
 
