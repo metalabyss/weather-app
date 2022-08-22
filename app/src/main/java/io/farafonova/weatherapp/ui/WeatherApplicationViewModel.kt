@@ -82,7 +82,7 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
 
 class WeatherApplicationViewModelFactory(private val datasourceManager: WeatherDatasourceManager) :
     ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WeatherApplicationViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return WeatherApplicationViewModel(datasourceManager) as T
