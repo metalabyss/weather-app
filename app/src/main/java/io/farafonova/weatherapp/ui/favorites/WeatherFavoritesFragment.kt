@@ -16,7 +16,6 @@ import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
 import io.farafonova.weatherapp.ui.current_forecast.CurrentForecastFragment
 import io.farafonova.weatherapp.ui.search.LocationSearchFragment
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -75,7 +74,7 @@ class WeatherFavoritesFragment : Fragment() {
         val adapter = WeatherFavoritesRecyclerViewAdapter(onFavoriteClickListener)
         binding.recyclerView.adapter = adapter
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.getFavorites()?.collect {
                     adapter.submitList(it)

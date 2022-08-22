@@ -10,8 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasourceManager) :
     ViewModel() {
@@ -22,12 +22,10 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
     suspend fun getFavorites(): Flow<List<BriefCurrentForecastWithLocation>?>? {
-        return withContext(Dispatchers.IO) {
-            executeLongTask(
+        return executeLongTask(
                 { datasourceManager.getLatestFavoriteForecasts() },
                 { printErrorMessageToLogAndShowItToUser(it) }
-            )
-        }
+            )?.flowOn(Dispatchers.IO)
     }
 
     fun searchForLocations(locationName: String) = viewModelScope.launch(Dispatchers.IO) {
