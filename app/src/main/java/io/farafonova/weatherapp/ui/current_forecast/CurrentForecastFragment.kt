@@ -7,11 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentCurrentForecastBinding
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
+import kotlinx.coroutines.launch
 
 
 class CurrentForecastFragment : Fragment() {
@@ -26,8 +29,10 @@ class CurrentForecastFragment : Fragment() {
             val latitude = bundle.getFloat("LOCATION_LATITUDE")
             val longitude = bundle.getFloat("LOCATION_LONGITUDE")
 
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                viewModel.getCurrentForecastForSpecificLocation(latitude, longitude)
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.getCurrentForecastForSpecificLocation(latitude, longitude)
+                }
             }
         }
     }

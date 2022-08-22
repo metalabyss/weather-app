@@ -82,12 +82,16 @@ class WeatherFavoritesFragment : Fragment() {
                 }
             }
         }
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.errorMessage.collect {
-                context?.let { c -> MaterialAlertDialogBuilder(c)
-                    .setMessage(it)
-                    .setPositiveButton(R.string.button_text_ok) { dialog, which -> dialog.dismiss() }
-                    .show() }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.errorMessage.collect {
+                    context?.let { c ->
+                        MaterialAlertDialogBuilder(c)
+                            .setMessage(it)
+                            .setPositiveButton(R.string.button_text_ok) { dialog, which -> dialog.dismiss() }
+                            .show()
+                    }
+                }
             }
         }
         return binding.root
