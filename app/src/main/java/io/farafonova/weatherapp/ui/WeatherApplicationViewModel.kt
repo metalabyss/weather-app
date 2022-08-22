@@ -6,12 +6,12 @@ import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasourceManager) :
     ViewModel() {
@@ -21,18 +21,16 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
     val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
-    suspend fun getFavorites(): StateFlow<List<BriefCurrentForecastWithLocation>?>? {
-        return executeLongTask({ datasourceManager.getLatestFavoriteForecasts() },
-            {
-                printErrorMessageToLogAndShowItToUser(it)
-            })?.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            null
-        )
+    suspend fun getFavorites(): Flow<List<BriefCurrentForecastWithLocation>?>? {
+        return withContext(Dispatchers.IO) {
+            executeLongTask(
+                { datasourceManager.getLatestFavoriteForecasts() },
+                { printErrorMessageToLogAndShowItToUser(it) }
+            )
+        }
     }
 
-    fun searchForLocations(locationName: String) = viewModelScope.launch {
+    fun searchForLocations(locationName: String) = viewModelScope.launch(Dispatchers.IO) {
         executeLongTask({
             searchResult.value = datasourceManager.findLocationsByName(locationName)
         }, {
@@ -45,13 +43,13 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
     }
 
     fun addOrRemoveFromFavorites(location: Location, shouldBeFavorite: Boolean) =
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             location.inFavorites = shouldBeFavorite
             datasourceManager.changeFavoriteLocationState(location)
         }
 
     suspend fun getCurrentForecastForSpecificLocation(latitude: Float, longitude: Float) =
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             executeLongTask({
                 datasourceManager.getCurrentForecastForSpecificLocation(latitude, longitude)
                     .collect { forecast -> singleDetailedForecast.value = forecast }

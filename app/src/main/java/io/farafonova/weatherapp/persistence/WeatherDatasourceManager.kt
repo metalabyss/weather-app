@@ -5,13 +5,11 @@ import io.farafonova.weatherapp.persistence.database.ForecastDao
 import io.farafonova.weatherapp.persistence.network.geocoding.GeocodingRepository
 import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.persistence.network.weather.WeatherRepository
-import io.farafonova.weatherapp.persistence.database.CurrentForecastEntity
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -54,36 +52,14 @@ class WeatherDatasourceManager(
         }
 
         if (entity.inFavorites) {
-            val forecastEntity = getLatestCurrentForecast(entity.latitude, entity.longitude)
-            dao.insertCurrentForecast(forecastEntity)
+            downloadLatestForecastsAndSaveToDb(listOf(Pair(entity.latitude, entity.longitude)))
         }
     }
 
-    suspend fun getLatestFavoriteForecasts(): Flow<List<BriefCurrentForecastWithLocation>> {
-        val locations = dao.getAllFavoriteLocations()
-        if (locations.isEmpty()) {
-            return flow { emptyList<BriefCurrentForecastWithLocation>() }
-        }
-
-        val lastSyncTime = lastSyncSharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
-        val currentTime = System.currentTimeMillis()
-
-        if (lastSyncTime == 0L || currentTime - lastSyncTime > 1800000L) {
-
-            val downloadedForecasts = locations.map { location ->
-                getLatestCurrentForecast(location.latitude, location.longitude)
-            }
-            dao.insertCurrentForecast(*downloadedForecasts.toTypedArray())
-
-            with(lastSyncSharedPrefs.edit()) {
-                putLong(lastSyncTimeSharedPrefsKey, System.currentTimeMillis())
-                apply()
-            }
-        }
-
-        val forecastsFlow = dao.getCurrentForecastForAllFavoriteLocations()
-            .map { map ->
-                map.map { entry ->
+    suspend fun getLatestFavoriteForecasts(fetchFromRemote: Boolean = false): Flow<List<BriefCurrentForecastWithLocation>> {
+        return flow {
+            var listOfForecasts = dao.getCurrentForecastForAllFavoriteLocations()
+                .map { entry ->
                     val location = entry.key
                     val forecast = entry.value
 
@@ -92,23 +68,53 @@ class WeatherDatasourceManager(
                         location.toLocationModel()
                     )
                 }
-            }
+            emit(listOfForecasts)
 
-        return forecastsFlow
+            val lastSyncTime = lastSyncSharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
+            val currentTime = System.currentTimeMillis()
+            val updateWasLongAgo = lastSyncTime == 0L || currentTime - lastSyncTime > 1800000L
+
+            if (fetchFromRemote || updateWasLongAgo) {
+                val coordinates = dao
+                    .getAllFavoriteLocations()
+                    .map { location -> Pair(location.latitude, location.longitude) }
+
+                downloadLatestForecastsAndSaveToDb(coordinates)
+
+                listOfForecasts = dao.getCurrentForecastForAllFavoriteLocations()
+                    .map { entry ->
+                        val location = entry.key
+                        val forecast = entry.value
+
+                        BriefCurrentForecastWithLocation(
+                            forecast.temperature.toInt(),
+                            location.toLocationModel()
+                        )
+                    }
+                emit(listOfForecasts)
+
+                with(lastSyncSharedPrefs.edit()) {
+                    putLong(lastSyncTimeSharedPrefsKey, System.currentTimeMillis())
+                    apply()
+                }
+            }
+        }
     }
 
-    private suspend fun getLatestCurrentForecast(
-        latitude: Float,
-        longitude: Float
-    ): CurrentForecastEntity {
+    private suspend fun downloadLatestForecastsAndSaveToDb(locations: List<Pair<Float, Float>>) {
 
-        val overallWeatherResponse =
-            weatherRepository.getWeather(latitude, longitude)
+        locations.forEach {
+            val latitude = it.first
+            val longitude = it.second
 
-        return overallWeatherResponse!!.currentWeatherResponse.toCurrentForecastEntity(
-            latitude,
-            longitude
-        )
+            val overallWeatherResponse =
+                weatherRepository.getWeather(latitude, longitude)
+
+            dao.insertCurrentForecast(overallWeatherResponse!!.currentWeatherResponse.toCurrentForecastEntity(
+                latitude,
+                longitude
+            ))
+        }
     }
 
     suspend fun getCurrentForecastForSpecificLocation(

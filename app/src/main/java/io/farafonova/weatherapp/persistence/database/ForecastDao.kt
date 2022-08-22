@@ -1,7 +1,6 @@
 package io.farafonova.weatherapp.persistence.database
 
 import androidx.room.*
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ForecastDao {
@@ -29,7 +28,7 @@ interface ForecastDao {
                 "AND location.lon = current_forecast.lon " +
                 "WHERE location.in_favorites = 1"
     )
-    fun getCurrentForecastForAllFavoriteLocations(): Flow<Map<LocationEntity, CurrentForecastEntity>>
+    fun getCurrentForecastForAllFavoriteLocations(): Map<LocationEntity, CurrentForecastEntity>
 
     @Query("SELECT COUNT(*) > 0 FROM location WHERE lat = :latitude AND lon = :longitude")
     suspend fun isThereAlreadySuchLocation(latitude: Float, longitude: Float): Boolean

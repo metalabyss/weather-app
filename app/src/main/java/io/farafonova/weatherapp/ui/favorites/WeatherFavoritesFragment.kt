@@ -5,7 +5,9 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
@@ -14,6 +16,7 @@ import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
 import io.farafonova.weatherapp.ui.current_forecast.CurrentForecastFragment
 import io.farafonova.weatherapp.ui.search.LocationSearchFragment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -72,9 +75,11 @@ class WeatherFavoritesFragment : Fragment() {
         val adapter = WeatherFavoritesRecyclerViewAdapter(onFavoriteClickListener)
         binding.recyclerView.adapter = adapter
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.getFavorites()?.collect {
-                adapter.submitList(it)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.getFavorites()?.collect {
+                    adapter.submitList(it)
+                }
             }
         }
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
