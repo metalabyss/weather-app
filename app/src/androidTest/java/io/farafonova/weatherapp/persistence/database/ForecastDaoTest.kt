@@ -12,6 +12,8 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -38,8 +40,8 @@ class ForecastDaoTest {
     @Test
     fun whenInsertingValidLocation_expectLocationToInsert() = runTest {
         val location = LocationEntity(
-            45.8132f,
-            15.9772f,
+            45.8132,
+            15.977,
             "Zagreb",
             "HR",
             false
@@ -52,8 +54,8 @@ class ForecastDaoTest {
     @Test(expected = IllegalArgumentException::class)
     fun whenLatitudeIsLessThanMinus90_expectCreationToFail() = runTest {
         val location = LocationEntity(
-            -91f,
-            0f,
+            -91.0,
+            0.0,
             "Nonexistent Place",
             "",
             false
@@ -63,8 +65,8 @@ class ForecastDaoTest {
     @Test(expected = IllegalArgumentException::class)
     fun whenLatitudeIsGreaterThan90_expectCreationToFail() = runTest {
         val location = LocationEntity(
-            91f,
-            0f,
+            91.0,
+            0.0,
             "Nonexistent Place",
             "",
             false
@@ -74,8 +76,8 @@ class ForecastDaoTest {
     @Test(expected = IllegalArgumentException::class)
     fun whenLongitudeIsLessThanMinus180_expectCreationToFail() = runTest {
         val location = LocationEntity(
-            0f,
-            -181f,
+            0.0,
+            -181.0,
             "Nonexistent Place",
             "",
             false
@@ -85,8 +87,8 @@ class ForecastDaoTest {
     @Test(expected = IllegalArgumentException::class)
     fun whenLongitudeIsGreaterThan180_expectCreationToFail() = runTest {
         val location = LocationEntity(
-            0f,
-            181f,
+            0.0,
+            181.0,
             "Nonexistent Place",
             "",
             false
@@ -96,15 +98,15 @@ class ForecastDaoTest {
     @Test
     fun whenInsertingFavoriteLocations_expectAllFavoriteLocationsToSelect() = runTest {
         val london = LocationEntity(
-            51.5073f,
-            -0.1276f,
+            51.5073,
+            -0.1276,
             "London",
             "GB",
             true
         )
         val paris = LocationEntity(
-            48.8589f,
-            2.3200f,
+            48.8589,
+            2.3200,
             "Paris",
             "FR",
             false
@@ -117,15 +119,15 @@ class ForecastDaoTest {
     @Test
     fun whenUpdatingLocation_expectUpdatedLocationToSelect() = runTest {
         val astana = LocationEntity(
-            51.1282f,
-            71.4307f,
+            51.1282,
+            71.4307,
             "Astana",
             "KZ",
             true
         )
         val nurSultan = LocationEntity(
-            51.1282f,
-            71.4307f,
+            51.1282,
+            71.4307,
             "Nur-Sultan",
             "KZ",
             true
@@ -139,8 +141,8 @@ class ForecastDaoTest {
     @Test
     fun whenThereIsSuchLocation_expectTrue() = runTest {
         val london = LocationEntity(
-            51.5073f,
-            -0.1276f,
+            51.5073,
+            -0.1276,
             "London",
             "GB",
             true
@@ -155,8 +157,8 @@ class ForecastDaoTest {
 
     @Test
     fun whenInsertingCurrentForecastForStoredLocation_expectCurrentForecastToInsert() = runTest {
-        val latitude = 55f
-        val longitude = 50f
+        val latitude = 55.0
+        val longitude = 50.0
         val somePlace = LocationEntity(
             latitude,
             longitude,
@@ -168,14 +170,14 @@ class ForecastDaoTest {
             latitude,
             longitude,
             1618317040,
-            15.2f,
-            10.0f,
-            6.0f,
+            15.2,
+            10.0,
+            6.0,
             0,
             1000,
             60,
-            20.0f,
-            0.2f,
+            20.0,
+            0.2,
             "broken clouds"
         )
         forecastDao.insertLocations(somePlace)
@@ -187,21 +189,21 @@ class ForecastDaoTest {
 
     @Test(expected = SQLiteConstraintException::class)
     fun whenInsertingCurrentForecastForNonStoredLocation_expectSQLiteConstraintException() = runTest {
-        val latitude = 55f
-        val longitude = 50f
+        val latitude = 55.0
+        val longitude = 50.0
 
         val forecast = CurrentForecastEntity(
             latitude,
             longitude,
             1618317040,
-            15.2f,
-            10.0f,
-            6.0f,
+            15.2,
+            10.0,
+            6.0,
             0,
             1000,
             60,
-            20.0f,
-            0.2f,
+            20.0,
+            0.2,
             "broken clouds"
         )
         forecastDao.insertCurrentForecast(forecast)
@@ -209,8 +211,8 @@ class ForecastDaoTest {
 
     @Test
     fun whenCurrentForecastForFavoriteLocationExist_expectFlowToEmitMapOfCurrentForecast() = runTest {
-        val latitude = 55f
-        val longitude = 50f
+        val latitude = 55.0
+        val longitude = 50.0
         val somePlace = LocationEntity(
             latitude,
             longitude,
@@ -222,14 +224,14 @@ class ForecastDaoTest {
             latitude,
             longitude,
             1618317040,
-            15.2f,
-            10.0f,
-            6.0f,
+            15.2,
+            10.0,
+            6.0,
             0,
             1000,
             60,
-            20.0f,
-            0.2f,
+            20.0,
+            0.2,
             "broken clouds"
         )
         forecastDao.insertLocations(somePlace)
@@ -241,7 +243,61 @@ class ForecastDaoTest {
 
     @Test
     fun whenTryingToGetNonexistentLocation_expectNull() = runTest {
-        val location = forecastDao.getSpecificLocation(0f, 0f)
+        val location = forecastDao.getSpecificLocation(0.0, 0.0)
         assertEquals(null, location)
+    }
+
+    @Test(expected = SQLiteConstraintException::class)
+    fun whenInsertingHourlyForecastForNonStoredLocation_expectSQLiteConstraintException() = runTest {
+        val latitude = 55.0
+        val longitude = 50.0
+
+        val forecast = HourlyForecastEntity(
+            latitude, longitude,
+            Instant.now().epochSecond,
+            15.2,
+            10.0,
+            0.1,
+        )
+        forecastDao.insertHourlyForecast(forecast)
+    }
+
+    @Test
+    fun whenSelectingFutureHourlyForecast_expectSuccess() = runTest {
+        val latitude = 90.0
+        val longitude = 60.0
+
+        val somePlace = LocationEntity(
+            latitude, longitude,
+            "Some Place",
+            "RU", true
+        )
+        forecastDao.insertLocations(somePlace)
+
+        val now = Instant.now().epochSecond
+        val currentHour = Instant.now().truncatedTo(ChronoUnit.HOURS).epochSecond
+        val hourBefore = currentHour - 3600
+        val hourLaterInstant = currentHour + 3600
+        println("-hour $hourBefore, current hour $currentHour, +hour $hourLaterInstant, now is $now")
+
+        val forecastLater = HourlyForecastEntity(
+            latitude, longitude, hourLaterInstant,
+            15.2, 10.0, 0.1,
+        )
+
+        val forecastCurrent = HourlyForecastEntity(
+            latitude, longitude, currentHour,
+            15.2, 10.0, 0.1,
+        )
+
+        val forecastBefore = HourlyForecastEntity(
+            latitude, longitude, hourBefore,
+            15.2, 10.0, 0.1,
+        )
+
+        forecastDao.insertHourlyForecast(forecastBefore, forecastCurrent, forecastLater)
+        val resultList = forecastDao.getHourlyForecastForSpecificLocation(latitude, longitude, currentHour)
+
+        assertEquals(listOf(forecastCurrent, forecastLater), resultList)
     }
 }

@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OverallWeatherResponse(
-    @JsonProperty("lat") val latitude: Float,
-    @JsonProperty("lon") val longitude: Float,
+    @JsonProperty("lat") val latitude: Double,
+    @JsonProperty("lon") val longitude: Double,
     @JsonProperty("timezone_offset") val timezoneOffset: Int,
     @JsonProperty("current") val currentWeatherResponse: CurrentWeatherResponse,
     @JsonProperty("hourly") val hourlyWeather: List<HourlyWeatherResponse>,

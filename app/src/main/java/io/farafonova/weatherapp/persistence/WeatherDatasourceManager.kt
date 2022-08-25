@@ -7,12 +7,15 @@ import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.persistence.network.weather.WeatherRepository
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
+import io.farafonova.weatherapp.domain.model.HourlyForecast
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.math.roundToInt
 
 class WeatherDatasourceManager(
     private val dao: ForecastDao,
@@ -34,7 +37,7 @@ class WeatherDatasourceManager(
         return geocodingRepository.getLocationByName(name)
             ?.map {
                 val inFavorites =
-                    dao.isLocationAlreadyInFavorites(it.latitude.toFloat(), it.longitude.toFloat())
+                    dao.isLocationAlreadyInFavorites(it.latitude.toDouble(), it.longitude.toDouble())
                 val searchEntry = it.toLocationModel()
                 searchEntry.inFavorites = inFavorites
                 searchEntry
@@ -101,25 +104,36 @@ class WeatherDatasourceManager(
         }
     }
 
-    private suspend fun downloadLatestForecastsAndSaveToDb(locations: List<Pair<Float, Float>>) {
+    private suspend fun downloadLatestForecastsAndSaveToDb(locations: List<Pair<Double, Double>>) {
 
-        locations.forEach {
-            val latitude = it.first
-            val longitude = it.second
+        locations.forEach { location ->
+            val latitude = location.first
+            val longitude = location.second
 
             val overallWeatherResponse =
                 weatherRepository.getWeather(latitude, longitude)
 
-            dao.insertCurrentForecast(overallWeatherResponse!!.currentWeatherResponse.toCurrentForecastEntity(
-                latitude,
-                longitude
-            ))
+            overallWeatherResponse?.let { response ->
+                dao.insertCurrentForecast(
+                    response.currentWeatherResponse.toCurrentForecastEntity(
+                        latitude,
+                        longitude
+                    )
+                )
+                val hourlyWeather = response.hourlyWeather.map {
+                    it.toHourlyForecastEntity(
+                        latitude,
+                        longitude
+                    )
+                }
+                dao.insertHourlyForecast(*hourlyWeather.toTypedArray())
+            }
         }
     }
 
     suspend fun getCurrentForecastForSpecificLocation(
-        latitude: Float,
-        longitude: Float
+        latitude: Double,
+        longitude: Double
     ): Flow<CurrentForecastWithLocation?> {
         val location = dao.getSpecificLocation(latitude, longitude)
 
@@ -127,7 +141,7 @@ class WeatherDatasourceManager(
             dao.getCurrentForecastForSpecificLocation(latitude, longitude)
 
         val currentForecastWithLocation = currentForecast?.let {
-            val forecastTime = Instant.ofEpochSecond(it.forecastTime.toLong())
+            val forecastTime = Instant.ofEpochSecond(it.forecastTime)
                 .atZone(TimeZone.getDefault().toZoneId())
 
             val formatter = DateTimeFormatter.ofPattern("dd.MM, HH:mm")
@@ -150,5 +164,29 @@ class WeatherDatasourceManager(
         }
 
         return flowOf(currentForecastWithLocation)
+    }
+
+    suspend fun getHourlyForecastForSpecificLocation(
+        latitude: Double,
+        longitude: Double
+    ): Flow<List<HourlyForecast>> {
+
+        val currentHour = Instant.now().truncatedTo(ChronoUnit.HOURS).epochSecond
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+
+        val forecasts = dao.getHourlyForecastForSpecificLocation(latitude, longitude, currentHour)
+            .map {
+                val forecastTime = Instant.ofEpochSecond(it.forecastTime)
+                    .atZone(TimeZone.getDefault().toZoneId())
+
+                HourlyForecast(
+                    it.temperature.toInt(),
+                    it.feelsLikeTemperature.toInt(),
+                    (it.precipitationProbability * 100).roundToInt(),
+                    forecastTime.format(formatter)
+                )
+            }
+
+        return flowOf(forecasts)
     }
 }

@@ -26,12 +26,13 @@ class CurrentForecastFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFragmentResultListener("SELECTED_FAVORITE") { _, bundle ->
-            val latitude = bundle.getFloat("LOCATION_LATITUDE")
-            val longitude = bundle.getFloat("LOCATION_LONGITUDE")
+            val latitude = bundle.getDouble("LOCATION_LATITUDE")
+            val longitude = bundle.getDouble("LOCATION_LONGITUDE")
 
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.getCurrentForecastForSpecificLocation(latitude, longitude)
+                    viewModel.getHourlyForecastForSpecificLocation(latitude, longitude)
                 }
             }
         }
@@ -49,6 +50,17 @@ class CurrentForecastFragment : Fragment() {
             currentForecastAppBar.setNavigationOnClickListener {
                 viewModel.singleDetailedForecast.value = null
                 parentFragmentManager.popBackStack()
+            }
+        }
+
+        val hourlyForecastAdapter = HourlyForecastRecyclerViewAdapter()
+        binding.rvHourlyForecast.adapter = hourlyForecastAdapter
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.hourlyForecast.collect {
+                    hourlyForecastAdapter.submitList(it)
+                }
             }
         }
 

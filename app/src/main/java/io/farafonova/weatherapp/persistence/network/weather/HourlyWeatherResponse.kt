@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class HourlyWeatherResponse(
-    @JsonProperty("dt") val weatherTime: Int,
-    @JsonProperty("temp") val temperature: Float,
-    @JsonProperty("feels_like") val feelsLikeTemperature: Float,
+    @JsonProperty("dt") val weatherTime: Long,
+    @JsonProperty("temp") val temperature: Double,
+    @JsonProperty("feels_like") val feelsLikeTemperature: Double,
+    @JsonProperty("pop") val precipitationProbability: Double,
     @JsonProperty("weather") val description: List<WeatherDescription>
 )

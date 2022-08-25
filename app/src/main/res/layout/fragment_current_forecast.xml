@@ -106,7 +106,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
-                            android:text="@{@string/template_feels_like_temperature(forecast.feelsLikeTemperature)}"
+                            android:text="@{@string/template_feels_like_temperature_uppercase(forecast.feelsLikeTemperature)}"
                             app:layout_constraintTop_toBottomOf="@+id/tv_weather_description"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
@@ -174,14 +174,14 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <!--<androidx.recyclerview.widget.RecyclerView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_hourly_forecast"
                     android:layout_gravity="center_horizontal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />-->
+                    android:orientation="vertical"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_last_updated"

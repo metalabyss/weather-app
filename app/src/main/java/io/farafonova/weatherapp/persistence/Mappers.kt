@@ -6,6 +6,8 @@ import io.farafonova.weatherapp.persistence.database.LocationEntity
 import io.farafonova.weatherapp.persistence.network.geocoding.LocationResponse
 import io.farafonova.weatherapp.persistence.network.weather.CurrentWeatherResponse
 import io.farafonova.weatherapp.domain.model.Location
+import io.farafonova.weatherapp.persistence.database.HourlyForecastEntity
+import io.farafonova.weatherapp.persistence.network.weather.HourlyWeatherResponse
 
 
 fun Location.toLocationEntity(): LocationEntity {
@@ -20,8 +22,8 @@ fun Location.toLocationEntity(): LocationEntity {
 
 fun LocationResponse.toLocationModel(): Location {
     return Location(
-        latitude.toFloat(),
-        longitude.toFloat(),
+        latitude.toDouble(),
+        longitude.toDouble(),
         name,
         state ?: "",
         Country.withCountryCode(countryCode)
@@ -39,7 +41,11 @@ fun LocationEntity.toLocationModel(): Location {
     )
 }
 
-fun CurrentWeatherResponse.toCurrentForecastEntity(latitude: Float, longitude: Float): CurrentForecastEntity {
+fun CurrentWeatherResponse.toCurrentForecastEntity(
+    latitude: Double,
+    longitude: Double
+): CurrentForecastEntity {
+
     return CurrentForecastEntity(
         latitude, longitude,
         currentTime,
@@ -50,3 +56,14 @@ fun CurrentWeatherResponse.toCurrentForecastEntity(latitude: Float, longitude: F
         description[0].description
     )
 }
+
+fun HourlyWeatherResponse.toHourlyForecastEntity(
+    latitude: Double,
+    longitude: Double
+
+): HourlyForecastEntity = HourlyForecastEntity(
+    latitude, longitude,
+    weatherTime,
+    temperature, feelsLikeTemperature,
+    precipitationProbability
+)

@@ -21,7 +21,7 @@ enum class WindDirection(private val abbreviation: String) {
             if (degree > 359 || degree < 0) throw IllegalArgumentException("Degree is a number between 0 and 359 (inclusive).")
 
             val directionNumber =
-                (degree.toFloat() / DEGREES_PER_DIRECTION.toFloat()).roundToInt() % DIRECTIONS_NUMBER
+                (degree.toDouble() / DEGREES_PER_DIRECTION.toDouble()).roundToInt() % DIRECTIONS_NUMBER
 
             return values()[directionNumber]
         }

@@ -3,10 +3,10 @@ package io.farafonova.weatherapp.persistence.network.weather
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class DailyTemperature(
-    @JsonProperty("min") val min: Float,
-    @JsonProperty("max") val max: Float,
-    @JsonProperty("morn") val morning: Float,
-    @JsonProperty("eve") val evening: Float,
-    @JsonProperty("day") val day: Float,
-    @JsonProperty("night") val night: Float
+    @JsonProperty("min") val min: Double,
+    @JsonProperty("max") val max: Double,
+    @JsonProperty("morn") val morning: Double,
+    @JsonProperty("eve") val evening: Double,
+    @JsonProperty("day") val day: Double,
+    @JsonProperty("night") val night: Double
 )

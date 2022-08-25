@@ -15,26 +15,26 @@ import androidx.room.ForeignKey
     )]
 )
 data class DailyForecastEntity(
-    @ColumnInfo(name = "lat") val latitude: Float,
-    @ColumnInfo(name = "lon") val longitude: Float,
-    @ColumnInfo(name = "forecast_time") val forecastTime: Int,
+    @ColumnInfo(name = "lat") val latitude: Double,
+    @ColumnInfo(name = "lon") val longitude: Double,
+    @ColumnInfo(name = "forecast_time") val forecastTime: Long,
 
-    @ColumnInfo(name = "temp_mor") val morningTemperature: Float,
-    @ColumnInfo(name = "temp_day") val dayTemperature: Float,
-    @ColumnInfo(name = "temp_eve") val eveningTemperature: Float,
-    @ColumnInfo(name = "temp_night") val nightTemperature: Float,
+    @ColumnInfo(name = "temp_mor") val morningTemperature: Double,
+    @ColumnInfo(name = "temp_day") val dayTemperature: Double,
+    @ColumnInfo(name = "temp_eve") val eveningTemperature: Double,
+    @ColumnInfo(name = "temp_night") val nightTemperature: Double,
 
-    @ColumnInfo(name = "feels_like_mor") val morningFeelsLikeTemperature: Float,
-    @ColumnInfo(name = "feels_like_day") val dayFeelsLikeTemperature: Float,
-    @ColumnInfo(name = "feels_like_eve") val eveningFeelsLikeTemperature: Float,
-    @ColumnInfo(name = "feels_like_night") val nightFeelsLikeTemperature: Float,
+    @ColumnInfo(name = "feels_like_mor") val morningFeelsLikeTemperature: Double,
+    @ColumnInfo(name = "feels_like_day") val dayFeelsLikeTemperature: Double,
+    @ColumnInfo(name = "feels_like_eve") val eveningFeelsLikeTemperature: Double,
+    @ColumnInfo(name = "feels_like_night") val nightFeelsLikeTemperature: Double,
 
-    @ColumnInfo(name = "wind_speed") val windSpeed: Float,
+    @ColumnInfo(name = "wind_speed") val windSpeed: Double,
     @ColumnInfo(name = "wind_degree") val windDegree: Int,
     @ColumnInfo val pressure: Int,
     @ColumnInfo val humidity: Int,
-    @ColumnInfo(name = "dew_point") val dewPoint: Float,
-    @ColumnInfo val uvi: Float,
+    @ColumnInfo(name = "dew_point") val dewPoint: Double,
+    @ColumnInfo val uvi: Double,
     @ColumnInfo val description: String
 ) {
     init {

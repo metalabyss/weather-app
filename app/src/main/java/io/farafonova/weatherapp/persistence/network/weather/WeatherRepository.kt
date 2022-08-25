@@ -19,7 +19,7 @@ class WeatherRepository(baseUrl: String, private val apiKey: String) {
         private val TAG = WeatherRepository::class.qualifiedName
     }
 
-    suspend fun getWeather(latitude: Float, longitude: Float): OverallWeatherResponse? {
+    suspend fun getWeather(latitude: Double, longitude: Double): OverallWeatherResponse? {
         val response =
             weatherService.getWeather(
                 latitude,

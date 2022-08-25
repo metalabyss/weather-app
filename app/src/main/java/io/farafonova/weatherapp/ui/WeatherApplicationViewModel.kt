@@ -6,6 +6,7 @@ import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
+import io.farafonova.weatherapp.domain.model.HourlyForecast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,6 +19,7 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
 
     val searchResult by lazy { MutableStateFlow<List<Location>?>(null) }
     val singleDetailedForecast by lazy { MutableStateFlow<CurrentForecastWithLocation?>(null) }
+    val hourlyForecast by lazy { MutableStateFlow<List<HourlyForecast>>(emptyList()) }
     val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
@@ -46,11 +48,21 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
             datasourceManager.changeFavoriteLocationState(location)
         }
 
-    suspend fun getCurrentForecastForSpecificLocation(latitude: Float, longitude: Float) =
+    suspend fun getCurrentForecastForSpecificLocation(latitude: Double, longitude: Double) =
         viewModelScope.launch(Dispatchers.IO) {
             executeLongTask({
                 datasourceManager.getCurrentForecastForSpecificLocation(latitude, longitude)
                     .collect { forecast -> singleDetailedForecast.value = forecast }
+            }, {
+                printErrorMessageToLogAndShowItToUser(it)
+            })
+        }
+
+    suspend fun getHourlyForecastForSpecificLocation(latitude: Double, longitude: Double) =
+        viewModelScope.launch(Dispatchers.IO) {
+            executeLongTask({
+                datasourceManager.getHourlyForecastForSpecificLocation(latitude, longitude)
+                    .collect { list -> hourlyForecast.value = list }
             }, {
                 printErrorMessageToLogAndShowItToUser(it)
             })

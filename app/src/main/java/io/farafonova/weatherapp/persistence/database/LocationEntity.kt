@@ -5,8 +5,8 @@ import androidx.room.Entity
 
 @Entity(tableName = "location", primaryKeys = ["lat", "lon"])
 data class LocationEntity(
-    @ColumnInfo(name = "lat") val latitude: Float,
-    @ColumnInfo(name = "lon") val longitude: Float,
+    @ColumnInfo(name = "lat") val latitude: Double,
+    @ColumnInfo(name = "lon") val longitude: Double,
     @ColumnInfo(name = "name") val locationName: String,
     @ColumnInfo(name = "country") val countryCode: String,
 //    @ColumnInfo(name = "timezone_offset") val timeZoneOffset: Int,

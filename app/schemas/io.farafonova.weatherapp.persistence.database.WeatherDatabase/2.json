@@ -1,0 +1,365 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "dbaabbaf884788670ca401cfc80ea66e",
+    "entities": [
+      {
+        "tableName": "location",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lat` REAL NOT NULL, `lon` REAL NOT NULL, `name` TEXT NOT NULL, `country` TEXT NOT NULL, `in_favorites` INTEGER NOT NULL DEFAULT FALSE, PRIMARY KEY(`lat`, `lon`))",
+        "fields": [
+          {
+            "fieldPath": "latitude",
+            "columnName": "lat",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "lon",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locationName",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "countryCode",
+            "columnName": "country",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inFavorites",
+            "columnName": "in_favorites",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "FALSE"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "lat",
+            "lon"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "current_forecast",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lat` REAL NOT NULL, `lon` REAL NOT NULL, `forecast_time` INTEGER NOT NULL, `temperature` REAL NOT NULL, `feels_like` REAL NOT NULL, `wind_speed` REAL NOT NULL, `wind_degree` INTEGER NOT NULL, `pressure` INTEGER NOT NULL, `humidity` INTEGER NOT NULL, `dew_point` REAL NOT NULL, `uvi` REAL NOT NULL, `description` TEXT NOT NULL, PRIMARY KEY(`lat`, `lon`), FOREIGN KEY(`lat`, `lon`) REFERENCES `location`(`lat`, `lon`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "latitude",
+            "columnName": "lat",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "lon",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "forecastTime",
+            "columnName": "forecast_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "temperature",
+            "columnName": "temperature",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "feelsLikeTemperature",
+            "columnName": "feels_like",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "windSpeed",
+            "columnName": "wind_speed",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "windDegree",
+            "columnName": "wind_degree",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pressure",
+            "columnName": "pressure",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "humidity",
+            "columnName": "humidity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dewPoint",
+            "columnName": "dew_point",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uvi",
+            "columnName": "uvi",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "lat",
+            "lon"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "location",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "lat",
+              "lon"
+            ],
+            "referencedColumns": [
+              "lat",
+              "lon"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "daily_forecast",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lat` REAL NOT NULL, `lon` REAL NOT NULL, `forecast_time` INTEGER NOT NULL, `temp_mor` REAL NOT NULL, `temp_day` REAL NOT NULL, `temp_eve` REAL NOT NULL, `temp_night` REAL NOT NULL, `feels_like_mor` REAL NOT NULL, `feels_like_day` REAL NOT NULL, `feels_like_eve` REAL NOT NULL, `feels_like_night` REAL NOT NULL, `wind_speed` REAL NOT NULL, `wind_degree` INTEGER NOT NULL, `pressure` INTEGER NOT NULL, `humidity` INTEGER NOT NULL, `dew_point` REAL NOT NULL, `uvi` REAL NOT NULL, `description` TEXT NOT NULL, PRIMARY KEY(`lat`, `lon`, `forecast_time`), FOREIGN KEY(`lat`, `lon`) REFERENCES `location`(`lat`, `lon`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "latitude",
+            "columnName": "lat",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "lon",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "forecastTime",
+            "columnName": "forecast_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "morningTemperature",
+            "columnName": "temp_mor",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dayTemperature",
+            "columnName": "temp_day",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eveningTemperature",
+            "columnName": "temp_eve",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nightTemperature",
+            "columnName": "temp_night",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "morningFeelsLikeTemperature",
+            "columnName": "feels_like_mor",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dayFeelsLikeTemperature",
+            "columnName": "feels_like_day",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eveningFeelsLikeTemperature",
+            "columnName": "feels_like_eve",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nightFeelsLikeTemperature",
+            "columnName": "feels_like_night",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "windSpeed",
+            "columnName": "wind_speed",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "windDegree",
+            "columnName": "wind_degree",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pressure",
+            "columnName": "pressure",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "humidity",
+            "columnName": "humidity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dewPoint",
+            "columnName": "dew_point",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uvi",
+            "columnName": "uvi",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "lat",
+            "lon",
+            "forecast_time"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "location",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "lat",
+              "lon"
+            ],
+            "referencedColumns": [
+              "lat",
+              "lon"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "hourly_forecast",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lat` REAL NOT NULL, `lon` REAL NOT NULL, `forecast_time` INTEGER NOT NULL, `temperature` REAL NOT NULL, `feels_like` REAL NOT NULL, `precipitationProbability` REAL NOT NULL, PRIMARY KEY(`lat`, `lon`, `forecast_time`), FOREIGN KEY(`lat`, `lon`) REFERENCES `location`(`lat`, `lon`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "latitude",
+            "columnName": "lat",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "lon",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "forecastTime",
+            "columnName": "forecast_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "temperature",
+            "columnName": "temperature",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "feelsLikeTemperature",
+            "columnName": "feels_like",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "precipitationProbability",
+            "columnName": "precipitationProbability",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "lat",
+            "lon",
+            "forecast_time"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "location",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "lat",
+              "lon"
+            ],
+            "referencedColumns": [
+              "lat",
+              "lon"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dbaabbaf884788670ca401cfc80ea66e')"
+    ]
+  }
+}

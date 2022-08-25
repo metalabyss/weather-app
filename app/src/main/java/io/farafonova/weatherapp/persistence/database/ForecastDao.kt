@@ -15,8 +15,8 @@ interface ForecastDao {
 
     @Query("SELECT * FROM current_forecast WHERE lat = :latitude AND lon = :longitude")
     suspend fun getCurrentForecastForSpecificLocation(
-        latitude: Float,
-        longitude: Float
+        latitude: Double,
+        longitude: Double
     ): CurrentForecastEntity?
 
     @Query("SELECT * FROM location WHERE in_favorites = 1")
@@ -31,11 +31,22 @@ interface ForecastDao {
     fun getCurrentForecastForAllFavoriteLocations(): Map<LocationEntity, CurrentForecastEntity>
 
     @Query("SELECT COUNT(*) > 0 FROM location WHERE lat = :latitude AND lon = :longitude")
-    suspend fun isThereAlreadySuchLocation(latitude: Float, longitude: Float): Boolean
+    suspend fun isThereAlreadySuchLocation(latitude: Double, longitude: Double): Boolean
 
     @Query("SELECT * FROM location WHERE lat = :latitude AND lon = :longitude")
-    suspend fun getSpecificLocation(latitude: Float, longitude: Float): LocationEntity?
+    suspend fun getSpecificLocation(latitude: Double, longitude: Double): LocationEntity?
 
-    @Query("SELECT EXISTS(SELECT * FROM location WHERE lat = :latitude AND lon = :longitude AND location.in_favorites = 1)")
-    suspend fun isLocationAlreadyInFavorites(latitude: Float, longitude: Float): Boolean
+    @Query("SELECT EXISTS(SELECT * FROM location WHERE lat = :latitude AND lon = :longitude" +
+            " AND location.in_favorites = 1)")
+    suspend fun isLocationAlreadyInFavorites(latitude: Double, longitude: Double): Boolean
+
+    @Query("SELECT * FROM hourly_forecast WHERE lat = :latitude AND lon = :longitude"
+            + " AND forecast_time >= :timeLimit")
+    suspend fun getHourlyForecastForSpecificLocation(latitude: Double, longitude: Double, timeLimit: Long): List<HourlyForecastEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHourlyForecast(vararg forecasts: HourlyForecastEntity)
+
+    @Query("DELETE FROM hourly_forecast WHERE forecast_time < :timeLimit")
+    suspend fun deleteOutdatedHourlyForecasts(timeLimit: Long)
 }
