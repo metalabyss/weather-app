@@ -15,6 +15,7 @@
             type="kotlinx.coroutines.flow.MutableStateFlow&lt;CurrentForecastWithLocation>" />
 
         <import type="android.view.View" />
+        <import type="io.farafonova.weatherapp.R" />
         <import type="io.farafonova.weatherapp.domain.model.WindDirection" />
         <import type="io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation" />
     </data>
@@ -76,43 +77,60 @@
                         android:layout_height="wrap_content"
                         android:padding="16dp">
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/tv_current_temperature"
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/guideline"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.5" />
+
+                        <ImageView
+                            android:id="@+id/iv_current_weather_condition"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
+                            android:paddingVertical="12dp"
+                            android:paddingHorizontal="8dp"
+                            app:layout_constraintEnd_toStartOf="@id/guideline"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:imageResource="@{forecast.forecastTime >= forecast.sunriseTime &amp;&amp; forecast.forecastTime &lt; forecast.sunsetTime ? forecast.weatherCondition.dayIcon() : forecast.weatherCondition.nightIcon()}"
+                            tools:src="@drawable/ic_condition_clear_sky_day_56"
+                            android:contentDescription="@{forecast.weatherCondition.description()}" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tv_current_temperature"
+                            style="@style/TextAppearance.MaterialComponents.Headline2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:text="@{@string/temperature_template_string(forecast.temperature)}"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
-                            style="@style/TextAppearance.MaterialComponents.Headline2"
-                            tools:text="20°C" />
+                            app:layout_constraintStart_toStartOf="@id/guideline"
+                            tools:text="20°" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/tv_weather_description"
+                            style="@style/TextAppearance.Material3.HeadlineMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
-                            android:text="@{forecast.description}"
-                            app:layout_constraintTop_toBottomOf="@+id/tv_current_temperature"
+                            android:text="@{forecast.weatherCondition.description()}"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            style="@style/TextAppearance.Material3.HeadlineMedium"
+                            app:layout_constraintTop_toBottomOf="@+id/tv_current_temperature"
                             tools:text="Sunny" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/tv_feels_like"
+                            style="@style/TextAppearance.MaterialComponents.Subtitle1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:text="@{@string/template_feels_like_temperature_uppercase(forecast.feelsLikeTemperature)}"
-                            app:layout_constraintTop_toBottomOf="@+id/tv_weather_description"
+                            app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                            tools:text="Feels like 20°C" />
+                            app:layout_constraintTop_toBottomOf="@+id/tv_weather_description"
+                            tools:text="Feels like 20°" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.cardview.widget.CardView>
@@ -189,7 +207,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="16dp"
-                    android:text="@{@string/template_last_updated(forecast.forecastTime)}"
+                    app:dateAndTime="@{forecast.forecastTime}"
+                    app:pattern="@{@string/date_time_pattern_last_updated}"
+                    app:resourceStringWithArguments="@{R.string.template_last_updated}"
                     tools:text="Updated at 13.07, 23:00" />
 
             </LinearLayout>

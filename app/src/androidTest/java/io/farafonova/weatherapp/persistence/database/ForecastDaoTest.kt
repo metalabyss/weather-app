@@ -178,7 +178,9 @@ class ForecastDaoTest {
             60,
             20.0,
             0.2,
-            "broken clouds"
+            800,
+            0,
+            0
         )
         forecastDao.insertLocations(somePlace)
         forecastDao.insertCurrentForecast(forecast)
@@ -204,7 +206,9 @@ class ForecastDaoTest {
             60,
             20.0,
             0.2,
-            "broken clouds"
+            800,
+            0,
+            0
         )
         forecastDao.insertCurrentForecast(forecast)
     }
@@ -232,7 +236,8 @@ class ForecastDaoTest {
             60,
             20.0,
             0.2,
-            "broken clouds"
+            800,
+            0,0
         )
         forecastDao.insertLocations(somePlace)
         forecastDao.insertCurrentForecast(forecast)
@@ -258,6 +263,7 @@ class ForecastDaoTest {
             15.2,
             10.0,
             0.1,
+            800
         )
         forecastDao.insertHourlyForecast(forecast)
     }
@@ -282,17 +288,17 @@ class ForecastDaoTest {
 
         val forecastLater = HourlyForecastEntity(
             latitude, longitude, hourLaterInstant,
-            15.2, 10.0, 0.1,
+            15.2, 10.0, 0.1, 800
         )
 
         val forecastCurrent = HourlyForecastEntity(
             latitude, longitude, currentHour,
-            15.2, 10.0, 0.1,
+            15.2, 10.0, 0.1, 800
         )
 
         val forecastBefore = HourlyForecastEntity(
             latitude, longitude, hourBefore,
-            15.2, 10.0, 0.1,
+            15.2, 10.0, 0.1, 800
         )
 
         forecastDao.insertHourlyForecast(forecastBefore, forecastCurrent, forecastLater)

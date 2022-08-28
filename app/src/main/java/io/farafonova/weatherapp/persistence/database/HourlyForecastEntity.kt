@@ -20,7 +20,8 @@ data class HourlyForecastEntity(
     @ColumnInfo(name = "forecast_time") val forecastTime: Long,
     @ColumnInfo val temperature: Double,
     @ColumnInfo(name = "feels_like") val feelsLikeTemperature: Double,
-    @ColumnInfo val precipitationProbability: Double
+    @ColumnInfo("pop") val precipitationProbability: Double,
+    @ColumnInfo("condition_id", defaultValue = "800") val weatherConditionId: Int
 ) {
     init {
         require(latitude >= -90.0 && latitude <= 90.0)

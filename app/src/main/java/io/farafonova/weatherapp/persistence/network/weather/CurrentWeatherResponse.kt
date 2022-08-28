@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class CurrentWeatherResponse(
     @JsonProperty("dt") val currentTime: Long,
+    @JsonProperty("sunrise") val sunriseTime: Long,
+    @JsonProperty("sunset") val sunsetTime: Long,
     @JsonProperty("temp") val temperature: Double,
     @JsonProperty("feels_like") val feelsLikeTemperature: Double,
     @JsonProperty("wind_speed") val windSpeed: Double,

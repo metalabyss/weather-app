@@ -12,10 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
-import kotlin.math.roundToInt
 
 class WeatherDatasourceManager(
     private val dao: ForecastDao,
@@ -66,10 +63,7 @@ class WeatherDatasourceManager(
                     val location = entry.key
                     val forecast = entry.value
 
-                    BriefCurrentForecastWithLocation(
-                        forecast.temperature.toInt(),
-                        location.toLocationModel()
-                    )
+                    forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
                 }
             emit(listOfForecasts)
 
@@ -89,10 +83,7 @@ class WeatherDatasourceManager(
                         val location = entry.key
                         val forecast = entry.value
 
-                        BriefCurrentForecastWithLocation(
-                            forecast.temperature.toInt(),
-                            location.toLocationModel()
-                        )
+                        forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
                     }
                 emit(listOfForecasts)
 
@@ -141,25 +132,8 @@ class WeatherDatasourceManager(
             dao.getCurrentForecastForSpecificLocation(latitude, longitude)
 
         val currentForecastWithLocation = currentForecast?.let {
-            val forecastTime = Instant.ofEpochSecond(it.forecastTime)
-                .atZone(TimeZone.getDefault().toZoneId())
-
-            val formatter = DateTimeFormatter.ofPattern("dd.MM, HH:mm")
-
             location?.let {
-                CurrentForecastWithLocation(
-                    currentForecast.temperature.toInt(),
-                    currentForecast.feelsLikeTemperature.toInt(),
-                    forecastTime.format(formatter),
-                    currentForecast.windSpeed,
-                    currentForecast.windDegree,
-                    currentForecast.pressure,
-                    currentForecast.humidity,
-                    currentForecast.dewPoint.toInt(),
-                    currentForecast.uvi,
-                    currentForecast.description,
-                    location.toLocationModel()
-                )
+                currentForecast.toCurrentForecastWithLocation(location.toLocationModel())
             }
         }
 
@@ -172,20 +146,9 @@ class WeatherDatasourceManager(
     ): Flow<List<HourlyForecast>> {
 
         val currentHour = Instant.now().truncatedTo(ChronoUnit.HOURS).epochSecond
-        val formatter = DateTimeFormatter.ofPattern("HH:mm")
 
         val forecasts = dao.getHourlyForecastForSpecificLocation(latitude, longitude, currentHour)
-            .map {
-                val forecastTime = Instant.ofEpochSecond(it.forecastTime)
-                    .atZone(TimeZone.getDefault().toZoneId())
-
-                HourlyForecast(
-                    it.temperature.toInt(),
-                    it.feelsLikeTemperature.toInt(),
-                    (it.precipitationProbability * 100).roundToInt(),
-                    forecastTime.format(formatter)
-                )
-            }
+            .map { it.toHourlyForecastModel() }
 
         return flowOf(forecasts)
     }

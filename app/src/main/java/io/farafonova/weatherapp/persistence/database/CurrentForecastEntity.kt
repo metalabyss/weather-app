@@ -26,7 +26,10 @@ data class CurrentForecastEntity(
     @ColumnInfo val humidity: Int,
     @ColumnInfo(name = "dew_point") val dewPoint: Double,
     @ColumnInfo val uvi: Double,
-    @ColumnInfo val description: String
+
+    @ColumnInfo("condition_id", defaultValue = "800") val weatherConditionId: Int,
+    @ColumnInfo("sunrise", defaultValue = "0") val sunriseTime: Long,
+    @ColumnInfo("sunset", defaultValue = "0") val sunsetTime: Long
 ) {
     init {
         require(latitude >= -90.0 && latitude <= 90.0)

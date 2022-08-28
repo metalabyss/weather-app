@@ -22,6 +22,8 @@
     <string name="template_pressure">%1$s hPa</string>
     <string name="template_precipitation">precipitation %1$s%%</string>
     <string name="template_last_updated">Updated at %1$s</string>
+    <string name="date_time_pattern_last_updated">dd.MM, HH:mm</string>
+    <string name="date_time_pattern_hours_and_minutes_only">HH:mm</string>
     <string name="button_text_ok">OK</string>
     <string name="location_search_no_results_message">No results.</string>
 </resources>

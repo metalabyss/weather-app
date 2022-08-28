@@ -4,5 +4,6 @@ data class HourlyForecast(
     val temperature: Int,
     val feelsLikeTemperature: Int,
     val precipitationProbability: Int,
-    val forecastTime: String
+    val forecastTime: Long,
+    val weatherCondition: WeatherCondition
 )
