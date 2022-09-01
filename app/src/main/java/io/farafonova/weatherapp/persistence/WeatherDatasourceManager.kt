@@ -7,7 +7,9 @@ import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.persistence.network.weather.WeatherRepository
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
-import io.farafonova.weatherapp.domain.model.HourlyForecast
+import io.farafonova.weatherapp.domain.model.DailyForecast
+import io.farafonova.weatherapp.domain.model.HourlyForecastWithLocation
+import io.farafonova.weatherapp.persistence.database.LocationEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -34,7 +36,10 @@ class WeatherDatasourceManager(
         return geocodingRepository.getLocationByName(name)
             ?.map {
                 val inFavorites =
-                    dao.isLocationAlreadyInFavorites(it.latitude.toDouble(), it.longitude.toDouble())
+                    dao.isLocationAlreadyInFavorites(
+                        it.latitude.toDouble(),
+                        it.longitude.toDouble()
+                    )
                 val searchEntry = it.toLocationModel()
                 searchEntry.inFavorites = inFavorites
                 searchEntry
@@ -52,7 +57,7 @@ class WeatherDatasourceManager(
         }
 
         if (entity.inFavorites) {
-            downloadLatestForecastsAndSaveToDb(listOf(Pair(entity.latitude, entity.longitude)))
+            downloadLatestForecastsAndSaveToDb(listOf(entity))
         }
     }
 
@@ -72,11 +77,9 @@ class WeatherDatasourceManager(
             val updateWasLongAgo = lastSyncTime == 0L || currentTime - lastSyncTime > 1800000L
 
             if (fetchFromRemote || updateWasLongAgo) {
-                val coordinates = dao
-                    .getAllFavoriteLocations()
-                    .map { location -> Pair(location.latitude, location.longitude) }
+                val locations = dao.getAllFavoriteLocations()
 
-                downloadLatestForecastsAndSaveToDb(coordinates)
+                downloadLatestForecastsAndSaveToDb(locations)
 
                 listOfForecasts = dao.getCurrentForecastForAllFavoriteLocations()
                     .map { entry ->
@@ -95,29 +98,35 @@ class WeatherDatasourceManager(
         }
     }
 
-    private suspend fun downloadLatestForecastsAndSaveToDb(locations: List<Pair<Double, Double>>) {
+    private suspend fun downloadLatestForecastsAndSaveToDb(locations: List<LocationEntity>) {
 
         locations.forEach { location ->
-            val latitude = location.first
-            val longitude = location.second
+            val latitude = location.latitude
+            val longitude = location.longitude
 
             val overallWeatherResponse =
                 weatherRepository.getWeather(latitude, longitude)
 
             overallWeatherResponse?.let { response ->
-                dao.insertCurrentForecast(
-                    response.currentWeatherResponse.toCurrentForecastEntity(
-                        latitude,
-                        longitude
-                    )
+                if (location.timezoneOffset != response.timezoneOffset) {
+                    val updatedLocation = location.copy(timezoneOffset = response.timezoneOffset)
+                    dao.updateLocations(updatedLocation)
+                    println("Previous location: $location")
+                    println("Updated location: $updatedLocation")
+                }
+                dao.insertCurrentForecasts(
+                    response.currentWeatherResponse.toCurrentForecastEntity(latitude, longitude)
                 )
                 val hourlyWeather = response.hourlyWeather.map {
-                    it.toHourlyForecastEntity(
-                        latitude,
-                        longitude
-                    )
+                    it.toHourlyForecastEntity(latitude, longitude)
                 }
-                dao.insertHourlyForecast(*hourlyWeather.toTypedArray())
+                dao.insertHourlyForecasts(*hourlyWeather.toTypedArray())
+
+                val dailyForecasts = response.dailyWeather.map {
+                    it.toDailyForecastEntity(latitude, longitude)
+                }
+                dao.insertDailyForecasts(*dailyForecasts.toTypedArray())
+                println("Downloaded: $dailyForecasts")
             }
         }
     }
@@ -143,13 +152,30 @@ class WeatherDatasourceManager(
     suspend fun getHourlyForecastForSpecificLocation(
         latitude: Double,
         longitude: Double
-    ): Flow<List<HourlyForecast>> {
+    ): Flow<List<HourlyForecastWithLocation>> {
 
-        val currentHour = Instant.now().truncatedTo(ChronoUnit.HOURS).epochSecond
+        return flow {
+            val currentHour = Instant.now().truncatedTo(ChronoUnit.HOURS).epochSecond
+            val location = dao.getSpecificLocation(latitude, longitude)?.toLocationModel()
 
-        val forecasts = dao.getHourlyForecastForSpecificLocation(latitude, longitude, currentHour)
-            .map { it.toHourlyForecastModel() }
+            if (location != null) {
+                emit(dao.getHourlyForecastForSpecificLocation(latitude, longitude, currentHour)
+                    .map { it.toHourlyForecastWithLocationModel(location) })
+            }
+        }
+    }
 
-        return flowOf(forecasts)
+    suspend fun getDailyForecast(
+        latitude: Double,
+        longitude: Double,
+        dayStartTime: Long,
+        dayEndTime: Long
+    ): Flow<DailyForecast?> {
+        return flow {
+            val daily = dao.getDailyForecasts(latitude, longitude, dayStartTime, dayEndTime)
+                .firstOrNull()
+                ?.toDailyForecastModel()
+            emit(daily)
+        }
     }
 }

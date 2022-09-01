@@ -35,6 +35,7 @@ data class DailyForecastEntity(
     @ColumnInfo val humidity: Int,
     @ColumnInfo(name = "dew_point") val dewPoint: Double,
     @ColumnInfo val uvi: Double,
+    @ColumnInfo("pop", defaultValue = "0") val precipitationProbability: Double,
 
     @ColumnInfo("condition_id", defaultValue = "800") val weatherConditionId: Int,
     @ColumnInfo("sunrise", defaultValue = "0") val sunriseTime: Long,

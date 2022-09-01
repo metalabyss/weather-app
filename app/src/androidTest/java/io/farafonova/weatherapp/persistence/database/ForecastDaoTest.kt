@@ -43,7 +43,9 @@ class ForecastDaoTest {
             45.8132,
             15.977,
             "Zagreb",
+            "",
             "HR",
+            0,
             false
         )
         forecastDao.insertLocations(location)
@@ -58,6 +60,8 @@ class ForecastDaoTest {
             0.0,
             "Nonexistent Place",
             "",
+            "RU",
+            0,
             false
         )
     }
@@ -69,6 +73,8 @@ class ForecastDaoTest {
             0.0,
             "Nonexistent Place",
             "",
+            "RU",
+            0,
             false
         )
     }
@@ -80,6 +86,8 @@ class ForecastDaoTest {
             -181.0,
             "Nonexistent Place",
             "",
+            "RU",
+            0,
             false
         )
     }
@@ -91,6 +99,8 @@ class ForecastDaoTest {
             181.0,
             "Nonexistent Place",
             "",
+            "RU",
+            0,
             false
         )
     }
@@ -101,14 +111,18 @@ class ForecastDaoTest {
             51.5073,
             -0.1276,
             "London",
+            "",
             "GB",
+            0,
             true
         )
         val paris = LocationEntity(
             48.8589,
             2.3200,
             "Paris",
+            "",
             "FR",
+            0,
             false
         )
         forecastDao.insertLocations(london, paris)
@@ -122,14 +136,18 @@ class ForecastDaoTest {
             51.1282,
             71.4307,
             "Astana",
+            "",
             "KZ",
+            0,
             true
         )
         val nurSultan = LocationEntity(
             51.1282,
             71.4307,
             "Nur-Sultan",
+            "",
             "KZ",
+            0,
             true
         )
         forecastDao.insertLocations(astana)
@@ -144,7 +162,9 @@ class ForecastDaoTest {
             51.5073,
             -0.1276,
             "London",
+            "",
             "GB",
+            0,
             true
         )
         forecastDao.insertLocations(london)
@@ -163,7 +183,9 @@ class ForecastDaoTest {
             latitude,
             longitude,
             "Some Place",
+            "",
             "RU",
+            0,
             false
         )
         val forecast = CurrentForecastEntity(
@@ -183,7 +205,7 @@ class ForecastDaoTest {
             0
         )
         forecastDao.insertLocations(somePlace)
-        forecastDao.insertCurrentForecast(forecast)
+        forecastDao.insertCurrentForecasts(forecast)
 
         val forecastFromDB = forecastDao.getCurrentForecastForSpecificLocation(latitude, longitude)
         assertEquals(forecast, forecastFromDB)
@@ -210,7 +232,7 @@ class ForecastDaoTest {
             0,
             0
         )
-        forecastDao.insertCurrentForecast(forecast)
+        forecastDao.insertCurrentForecasts(forecast)
     }
 
     @Test
@@ -221,7 +243,9 @@ class ForecastDaoTest {
             latitude,
             longitude,
             "Some Place",
+            "",
             "RU",
+            0,
             true
         )
         val forecast = CurrentForecastEntity(
@@ -240,7 +264,7 @@ class ForecastDaoTest {
             0,0
         )
         forecastDao.insertLocations(somePlace)
-        forecastDao.insertCurrentForecast(forecast)
+        forecastDao.insertCurrentForecasts(forecast)
 
         val mapOfForecasts = forecastDao.getCurrentForecastForAllFavoriteLocations()
         assertEquals(mapOf(somePlace to forecast), mapOfForecasts)
@@ -265,7 +289,7 @@ class ForecastDaoTest {
             0.1,
             800
         )
-        forecastDao.insertHourlyForecast(forecast)
+        forecastDao.insertHourlyForecasts(forecast)
     }
 
     @Test
@@ -275,8 +299,8 @@ class ForecastDaoTest {
 
         val somePlace = LocationEntity(
             latitude, longitude,
-            "Some Place",
-            "RU", true
+            "Some Place", "",
+            "RU", 0, true
         )
         forecastDao.insertLocations(somePlace)
 
@@ -301,7 +325,7 @@ class ForecastDaoTest {
             15.2, 10.0, 0.1, 800
         )
 
-        forecastDao.insertHourlyForecast(forecastBefore, forecastCurrent, forecastLater)
+        forecastDao.insertHourlyForecasts(forecastBefore, forecastCurrent, forecastLater)
         val resultList = forecastDao.getHourlyForecastForSpecificLocation(latitude, longitude, currentHour)
 
         assertEquals(listOf(forecastCurrent, forecastLater), resultList)

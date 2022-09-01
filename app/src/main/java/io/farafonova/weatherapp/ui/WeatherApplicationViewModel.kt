@@ -6,28 +6,32 @@ import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
-import io.farafonova.weatherapp.domain.model.HourlyForecast
+import io.farafonova.weatherapp.domain.model.HourlyForecastWithLocation
+import io.farafonova.weatherapp.domain.usecase.DefineIsItLightOutsideUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
-class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasourceManager) :
-    ViewModel() {
+class WeatherApplicationViewModel(
+    private val datasourceManager: WeatherDatasourceManager,
+    private val lightOutsideUseCase: DefineIsItLightOutsideUseCase,
+) : ViewModel() {
 
     val searchResult by lazy { MutableStateFlow<List<Location>?>(null) }
     val singleDetailedForecast by lazy { MutableStateFlow<CurrentForecastWithLocation?>(null) }
-    val hourlyForecast by lazy { MutableStateFlow<List<HourlyForecast>>(emptyList()) }
+    val hourlyForecast by lazy { MutableStateFlow<List<HourlyForecastWithLocation>>(emptyList()) }
     val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
     suspend fun getFavorites(): Flow<List<BriefCurrentForecastWithLocation>?>? {
         return executeLongTask(
-                { datasourceManager.getLatestFavoriteForecasts() },
-                { printErrorMessageToLogAndShowItToUser(it) }
-            )?.flowOn(Dispatchers.IO)
+            { datasourceManager.getLatestFavoriteForecasts() },
+            { printErrorMessageToLogAndShowItToUser(it) }
+        )?.flowOn(Dispatchers.IO)
     }
 
     fun searchForLocations(locationName: String) = viewModelScope.launch(Dispatchers.IO) {
@@ -68,6 +72,20 @@ class WeatherApplicationViewModel(private val datasourceManager: WeatherDatasour
             })
         }
 
+    suspend fun isItLight(moment: Long): Boolean {
+        return viewModelScope.async(Dispatchers.IO) {
+            singleDetailedForecast.value?.let {
+                val location = it.location
+                return@async lightOutsideUseCase(
+                    location.latitude,
+                    location.longitude,
+                    moment,
+                    location.timeZoneOffset
+                )
+            } ?: false
+        }.await()
+    }
+
     private suspend fun <T> executeLongTask(
         task: suspend () -> T,
         exceptionHandler: suspend (Throwable) -> Unit
@@ -97,7 +115,10 @@ class WeatherApplicationViewModelFactory(private val datasourceManager: WeatherD
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WeatherApplicationViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return WeatherApplicationViewModel(datasourceManager) as T
+            return WeatherApplicationViewModel(
+                datasourceManager,
+                DefineIsItLightOutsideUseCase(datasourceManager)
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

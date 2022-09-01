@@ -14,6 +14,7 @@ data class DailyWeatherResponse(
     @JsonProperty("humidity") val humidity: Int,
     @JsonProperty("dew_point") val dewPoint: Double,
     @JsonProperty("uvi") val uvi: Double,
+    @JsonProperty("pop") val precipitationProbability: Double,
     @JsonProperty("weather") val description: List<WeatherDescription>,
     @JsonProperty("temp") val temperature: DailyTemperature,
     @JsonProperty("feels_like") val feelsLikeTemperature: DailyTemperature

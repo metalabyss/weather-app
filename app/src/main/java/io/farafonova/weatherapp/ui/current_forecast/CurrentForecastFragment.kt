@@ -53,7 +53,7 @@ class CurrentForecastFragment : Fragment() {
             }
         }
 
-        val hourlyForecastAdapter = HourlyForecastRecyclerViewAdapter()
+        val hourlyForecastAdapter = HourlyForecastRecyclerViewAdapter(viewModel::isItLight)
         binding.rvHourlyForecast.adapter = hourlyForecastAdapter
 
         viewLifecycleOwner.lifecycleScope.launch {

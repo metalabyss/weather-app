@@ -1,6 +1,8 @@
 package io.farafonova.weatherapp.persistence.database
 
 import androidx.room.*
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @Dao
 interface ForecastDao {
@@ -8,7 +10,7 @@ interface ForecastDao {
     suspend fun insertLocations(vararg locations: LocationEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCurrentForecast(vararg forecasts: CurrentForecastEntity)
+    suspend fun insertCurrentForecasts(vararg forecasts: CurrentForecastEntity)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateLocations(vararg locations: LocationEntity)
@@ -36,17 +38,41 @@ interface ForecastDao {
     @Query("SELECT * FROM location WHERE lat = :latitude AND lon = :longitude")
     suspend fun getSpecificLocation(latitude: Double, longitude: Double): LocationEntity?
 
-    @Query("SELECT EXISTS(SELECT * FROM location WHERE lat = :latitude AND lon = :longitude" +
-            " AND location.in_favorites = 1)")
+    @Query(
+        "SELECT EXISTS(SELECT * FROM location WHERE lat = :latitude AND lon = :longitude" +
+                " AND location.in_favorites = 1)"
+    )
     suspend fun isLocationAlreadyInFavorites(latitude: Double, longitude: Double): Boolean
 
-    @Query("SELECT * FROM hourly_forecast WHERE lat = :latitude AND lon = :longitude"
-            + " AND forecast_time >= :timeLimit")
-    suspend fun getHourlyForecastForSpecificLocation(latitude: Double, longitude: Double, timeLimit: Long): List<HourlyForecastEntity>
+    @Query(
+        "SELECT * FROM hourly_forecast WHERE lat = :latitude AND lon = :longitude"
+                + " AND forecast_time >= :timeLimit LIMIT :numberOfRows"
+    )
+    suspend fun getHourlyForecastForSpecificLocation(
+        latitude: Double,
+        longitude: Double,
+        timeLimit: Long,
+        numberOfRows: Int = 24
+    ): List<HourlyForecastEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHourlyForecast(vararg forecasts: HourlyForecastEntity)
+    suspend fun insertHourlyForecasts(vararg forecasts: HourlyForecastEntity)
 
     @Query("DELETE FROM hourly_forecast WHERE forecast_time < :timeLimit")
-    suspend fun deleteOutdatedHourlyForecasts(timeLimit: Long)
+    suspend fun deleteOutdatedHourlyForecasts(timeLimit: Long = Instant.now().epochSecond)
+
+    @Query("SELECT * FROM daily_forecast WHERE lat = :latitude" +
+            " AND lon = :longitude" +
+            " AND forecast_time >= :lowerTimeBound" +
+            " AND forecast_time <= :upperTimeBound"
+    )
+    suspend fun getDailyForecasts(
+        latitude: Double,
+        longitude: Double,
+        lowerTimeBound: Long = Instant.now().epochSecond,
+        upperTimeBound: Long = Instant.now().plus(1, ChronoUnit.WEEKS).epochSecond
+    ): List<DailyForecastEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDailyForecasts(vararg forecasts: DailyForecastEntity)
 }

@@ -7,9 +7,10 @@ import androidx.room.Entity
 data class LocationEntity(
     @ColumnInfo(name = "lat") val latitude: Double,
     @ColumnInfo(name = "lon") val longitude: Double,
-    @ColumnInfo(name = "name") val locationName: String,
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "state", defaultValue = "") val state: String,
     @ColumnInfo(name = "country") val countryCode: String,
-//    @ColumnInfo(name = "timezone_offset") val timeZoneOffset: Int,
+    @ColumnInfo(name = "timezone_offset", defaultValue = "0") val timezoneOffset: Int,
     @ColumnInfo(name = "in_favorites", defaultValue = "FALSE") var inFavorites: Boolean
 ) {
     init {

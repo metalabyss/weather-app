@@ -5,23 +5,27 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.databinding.BindingAdapter
 import java.time.Instant
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.util.TimeZone
 
 @BindingAdapter("compoundButtonOnClick")
 fun toggleButtonOnClick(button: CompoundButton, clickListener: CompoundButton.OnCheckedChangeListener) {
     button.setOnCheckedChangeListener(clickListener)
 }
 
-@BindingAdapter(value = ["dateAndTime", "pattern", "resourceStringWithArguments"], requireAll = false)
+@BindingAdapter(
+    value = ["dateAndTime", "timezoneOffset", "pattern", "resourceStringWithArguments"],
+    requireAll = false
+)
 fun setFormattedDateAndTimeAsText(
     textView: TextView,
     dateAndTime: Long,
+    timezoneOffset: Int = ZoneOffset.UTC.totalSeconds,
     pattern: String = "",
     @StringRes stringResId: Int = 0
 ) {
     val forecastTime = Instant.ofEpochSecond(dateAndTime)
-        .atZone(TimeZone.getDefault().toZoneId())
+        .atOffset(ZoneOffset.ofTotalSeconds(timezoneOffset))
 
     val dateTimeString = if (pattern.isBlank()) {
         forecastTime.toString()

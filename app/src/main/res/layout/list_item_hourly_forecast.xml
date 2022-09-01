@@ -5,8 +5,12 @@
 
     <data>
         <variable
-            name="hourlyForecast"
-            type="io.farafonova.weatherapp.domain.model.HourlyForecast" />
+            name="forecast"
+            type="io.farafonova.weatherapp.domain.model.HourlyForecastWithLocation" />
+
+        <variable
+            name="iconResId"
+            type="Integer" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -24,7 +28,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/tv_hourly_precipitation_probability"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:dateAndTime="@{hourlyForecast.forecastTime}"
+            app:dateAndTime="@{forecast.forecastTime}"
+            app:timezoneOffset="@{forecast.location.timeZoneOffset}"
             app:pattern="@{@string/date_time_pattern_hours_and_minutes_only}"
             tools:text="12:00" />
 
@@ -37,7 +42,7 @@
             app:layout_constraintStart_toEndOf="@+id/tv_hourly_forecast_time"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:text="@{@string/template_precipitation(hourlyForecast.precipitationProbability)}"
+            android:text="@{@string/template_precipitation(forecast.precipitationProbability)}"
             tools:text="precipitation: 5%"/>
 
         <ImageView
@@ -45,7 +50,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
-            android:src="@drawable/ic_favorite_filled_24"
+            android:contentDescription="@{forecast.weatherCondition.description()}"
+            app:imageResource="@{iconResId}"
             app:layout_constraintEnd_toStartOf="@+id/tv_hourly_forecast_temperature"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
@@ -58,7 +64,7 @@
             app:layout_constraintEnd_toStartOf="@+id/tv_hourly_forecast_feels_like"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:text="@{@string/temperature_template_string(hourlyForecast.temperature)}"
+            android:text="@{@string/temperature_template_string(forecast.temperature)}"
             tools:text="25°"/>
 
         <com.google.android.material.textview.MaterialTextView
@@ -69,7 +75,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:text="@{@string/template_feels_like_temperature_lowercase(hourlyForecast.feelsLikeTemperature)}"
+            android:text="@{@string/template_feels_like_temperature_lowercase(forecast.feelsLikeTemperature)}"
             tools:text="like 25°"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
