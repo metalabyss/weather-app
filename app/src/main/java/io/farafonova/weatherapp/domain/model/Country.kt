@@ -50,7 +50,7 @@ enum class Country(private val twoLetterCode: String, private val flag: String) 
     COCOS_ISLAND("CC", "🇨🇨"),
     COLOMBIA("CO", "🇨🇴"),
     COMOROS("KM", "🇰🇲"),
-    CONGO("KG", "🇨🇬"),
+    CONGO("CG", "🇨🇬"),
     REPUBLIC_OF_CONGO("CD", "🇨🇩"),
     COOK_ISLANDS("CK", "🇨🇰"),
     COSTA_RICA("CR", "🇨🇷"),
