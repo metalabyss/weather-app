@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
-            name="weatherEntry"
+            name="forecast"
             type="io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -12,28 +12,78 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_item_location_name"
-            style="@style/TextAppearance.AppCompat.Title"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_favorites_location_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
-            android:text="@{weatherEntry.location.name}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="@{forecast.location.name}"
+            android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Novosibirsk" />
 
-        <TextView
-            android:id="@+id/tv_item_temperature"
-            style="@style/TextAppearance.AppCompat.Title"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_favorites_location_state_and_country"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{@string/template_temperature(weatherEntry.temperature)}"
+            android:text="@{forecast.location.state.empty ? forecast.location.country.flag() : @string/searched_location_state_template_string(forecast.location.state, forecast.location.country.flag())}"
+            app:layout_constraintTop_toBottomOf="@id/tv_favorites_location_name"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Novosibirsk, 🇷🇺"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_favorites_day_of_the_week_date_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:dateAndTime="@{forecast.forecastTime}"
+            app:timezoneOffset="@{forecast.location.timeZoneOffset}"
+            app:pattern="@{@string/date_time_pattern_day_of_week_day_of_moth_hours_minutes}"
+            app:layout_constraintTop_toBottomOf="@id/tv_favorites_location_state_and_country"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Fri, September 2 23:00"/>
+
+        <ImageView
+            android:id="@+id/iv_favorites_weather_condition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:contentDescription="@{forecast.weatherCondition.description()}"
+            app:imageResource="@{forecast.forecastTime >= forecast.sunriseTime &amp;&amp; forecast.forecastTime &lt; forecast.sunsetTime ? forecast.weatherCondition.daySmallIcon() : forecast.weatherCondition.nightSmallIcon()}"
+            app:layout_constraintTop_toTopOf="@id/tv_favorites_temperature"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_favorites_temperature"
+            app:layout_constraintEnd_toStartOf="@+id/tv_favorites_temperature"
+            tools:src="@drawable/ic_condition_scattered_clouds_24"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_favorites_temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{@string/template_temperature(forecast.temperature)}"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintBottom_toBottomOf="@id/tv_favorites_location_name"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="-8°C" />
+            app:layout_constraintTop_toTopOf="@id/tv_favorites_location_name"
+            tools:text="-1°" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_favorites_feels_like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{@string/template_feels_like_temperature_lowercase(forecast.feelsLikeTemperature)}"
+            app:layout_constraintTop_toBottomOf="@+id/iv_favorites_weather_condition"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="feels like +1°"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_favorites_weather_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{forecast.weatherCondition.description()}"
+            app:layout_constraintTop_toBottomOf="@+id/tv_favorites_feels_like"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="overcast clouds: 85-100%"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

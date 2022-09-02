@@ -95,6 +95,11 @@ fun CurrentForecastEntity.toBriefCurrentForecastWithLocation(
     location: Location
 ): BriefCurrentForecastWithLocation = BriefCurrentForecastWithLocation(
     temperature.roundToInt(),
+    feelsLikeTemperature.roundToInt(),
+    forecastTime,
+    sunriseTime,
+    sunsetTime,
+    WeatherCondition.valueFrom(weatherConditionId),
     location
 )
 

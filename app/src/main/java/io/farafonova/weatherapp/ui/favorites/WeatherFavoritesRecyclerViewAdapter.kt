@@ -33,7 +33,7 @@ class WeatherFavoritesViewHolder(private val binding: ListItemFavoriteLocationBi
     RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: BriefCurrentForecastWithLocation, onClickListener: (Double, Double) -> Unit) {
-        binding.weatherEntry = item
+        binding.forecast = item
         binding.root.setOnClickListener {
             onClickListener(
                 item.location.latitude,
