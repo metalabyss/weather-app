@@ -6,6 +6,7 @@ import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
+import io.farafonova.weatherapp.domain.model.BriefDailyForecastWithLocation
 import io.farafonova.weatherapp.domain.model.HourlyForecastWithLocation
 import io.farafonova.weatherapp.domain.usecase.DefineIsItLightOutsideUseCase
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ class WeatherApplicationViewModel(
     val searchResult by lazy { MutableStateFlow<List<Location>?>(null) }
     val singleDetailedForecast by lazy { MutableStateFlow<CurrentForecastWithLocation?>(null) }
     val hourlyForecast by lazy { MutableStateFlow<List<HourlyForecastWithLocation>>(emptyList()) }
+    val dailyForecasts by lazy { MutableStateFlow<List<BriefDailyForecastWithLocation>>(emptyList()) }
     val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
@@ -85,6 +87,16 @@ class WeatherApplicationViewModel(
             } ?: false
         }.await()
     }
+
+    suspend fun getDailyForecastsForSpecificLocation(latitude: Double, longitude: Double) =
+        viewModelScope.launch(Dispatchers.IO) {
+            executeLongTask({
+                datasourceManager.getDailyForecastsForSpecificLocation(latitude, longitude)
+                    .collect { list -> dailyForecasts.value = list }
+            }, {
+                printErrorMessageToLogAndShowItToUser(it)
+            })
+        }
 
     private suspend fun <T> executeLongTask(
         task: suspend () -> T,

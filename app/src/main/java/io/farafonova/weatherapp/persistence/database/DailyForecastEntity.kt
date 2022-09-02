@@ -19,6 +19,9 @@ data class DailyForecastEntity(
     @ColumnInfo(name = "lon") val longitude: Double,
     @ColumnInfo(name = "forecast_time") val forecastTime: Long,
 
+    @ColumnInfo(name = "temp_max", defaultValue = "0.0") val maxTemperature: Double,
+    @ColumnInfo(name = "temp_min", defaultValue = "0.0") val minTemperature: Double,
+
     @ColumnInfo(name = "temp_mor") val morningTemperature: Double,
     @ColumnInfo(name = "temp_day") val dayTemperature: Double,
     @ColumnInfo(name = "temp_eve") val eveningTemperature: Double,

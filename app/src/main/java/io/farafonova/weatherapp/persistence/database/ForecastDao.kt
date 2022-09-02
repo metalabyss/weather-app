@@ -70,7 +70,7 @@ interface ForecastDao {
         latitude: Double,
         longitude: Double,
         lowerTimeBound: Long = Instant.now().epochSecond,
-        upperTimeBound: Long = Instant.now().plus(1, ChronoUnit.WEEKS).epochSecond
+        upperTimeBound: Long = Instant.now().plus(7, ChronoUnit.DAYS).epochSecond
     ): List<DailyForecastEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -33,6 +33,7 @@ class CurrentForecastFragment : Fragment() {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.getCurrentForecastForSpecificLocation(latitude, longitude)
                     viewModel.getHourlyForecastForSpecificLocation(latitude, longitude)
+                    viewModel.getDailyForecastsForSpecificLocation(latitude, longitude)
                 }
             }
         }
@@ -56,10 +57,21 @@ class CurrentForecastFragment : Fragment() {
         val hourlyForecastAdapter = HourlyForecastRecyclerViewAdapter(viewModel::isItLight)
         binding.rvHourlyForecast.adapter = hourlyForecastAdapter
 
+        val dailyForecastAdapter = DailyForecastRecyclerViewAdapter()
+        binding.rvDailyForecast.adapter = dailyForecastAdapter
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.hourlyForecast.collect {
                     hourlyForecastAdapter.submitList(it)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.dailyForecasts.collect {
+                    dailyForecastAdapter.submitList(it)
                 }
             }
         }

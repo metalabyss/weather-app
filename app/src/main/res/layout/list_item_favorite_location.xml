@@ -29,7 +29,7 @@
             style="@style/TextAppearance.AppCompat.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{@string/temperature_template_string(weatherEntry.temperature)}"
+            android:text="@{@string/template_temperature(weatherEntry.temperature)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

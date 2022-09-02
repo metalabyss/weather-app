@@ -1,6 +1,7 @@
 package io.farafonova.weatherapp.persistence
 
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
+import io.farafonova.weatherapp.domain.model.BriefDailyForecastWithLocation
 import io.farafonova.weatherapp.domain.model.Country
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.DailyForecast
@@ -129,6 +130,8 @@ fun DailyWeatherResponse.toDailyForecastEntity(
         latitude, longitude,
         weatherTime,
 
+        temperature.max, temperature.min,
+
         temperature.morning, temperature.day,
         temperature.evening, temperature.night,
 
@@ -168,5 +171,15 @@ fun DailyForecastEntity.toDailyForecastModel(): DailyForecast {
         forecastTime, sunriseTime, sunsetTime,
 
         WeatherCondition.valueFrom(weatherConditionId)
+    )
+}
+
+fun DailyForecastEntity.toBriefDailyForecastWithLocation(location: Location): BriefDailyForecastWithLocation {
+    return BriefDailyForecastWithLocation(
+        maxTemperature.roundToInt(),
+        minTemperature.roundToInt(),
+        forecastTime,
+        WeatherCondition.valueFrom(weatherConditionId),
+        location
     )
 }

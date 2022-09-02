@@ -7,6 +7,7 @@ import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.persistence.network.weather.WeatherRepository
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
+import io.farafonova.weatherapp.domain.model.BriefDailyForecastWithLocation
 import io.farafonova.weatherapp.domain.model.DailyForecast
 import io.farafonova.weatherapp.domain.model.HourlyForecastWithLocation
 import io.farafonova.weatherapp.persistence.database.LocationEntity
@@ -176,6 +177,20 @@ class WeatherDatasourceManager(
                 .firstOrNull()
                 ?.toDailyForecastModel()
             emit(daily)
+        }
+    }
+
+    suspend fun getDailyForecastsForSpecificLocation(
+        latitude: Double,
+        longitude: Double
+    ): Flow<List<BriefDailyForecastWithLocation>> {
+        return flow {
+            val location = dao.getSpecificLocation(latitude, longitude)?.toLocationModel()
+
+            if (location != null) {
+                emit(dao.getDailyForecasts(latitude, longitude)
+                    .map { it.toBriefDailyForecastWithLocation(location) })
+            }
         }
     }
 }
