@@ -11,10 +11,8 @@ import io.farafonova.weatherapp.domain.model.HourlyForecastWithLocation
 import io.farafonova.weatherapp.domain.usecase.DefineIsItLightOutsideUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class WeatherApplicationViewModel(
@@ -23,17 +21,20 @@ class WeatherApplicationViewModel(
 ) : ViewModel() {
 
     val searchResult by lazy { MutableStateFlow<List<Location>?>(null) }
+    val favoritesList by lazy { MutableStateFlow<List<BriefCurrentForecastWithLocation>>(emptyList()) }
     val singleDetailedForecast by lazy { MutableStateFlow<CurrentForecastWithLocation?>(null) }
     val hourlyForecast by lazy { MutableStateFlow<List<HourlyForecastWithLocation>>(emptyList()) }
     val dailyForecasts by lazy { MutableStateFlow<List<BriefDailyForecastWithLocation>>(emptyList()) }
     val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
-    suspend fun getFavorites(): Flow<List<BriefCurrentForecastWithLocation>?>? {
-        return executeLongTask(
-            { datasourceManager.getLatestFavoriteForecasts() },
-            { printErrorMessageToLogAndShowItToUser(it) }
-        )?.flowOn(Dispatchers.IO)
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            executeLongTask(
+                { datasourceManager.getLatestFavoriteForecasts().collect { list -> favoritesList.value = list } },
+                { printErrorMessageToLogAndShowItToUser(it) }
+            )
+        }
     }
 
     fun searchForLocations(locationName: String) = viewModelScope.launch(Dispatchers.IO) {

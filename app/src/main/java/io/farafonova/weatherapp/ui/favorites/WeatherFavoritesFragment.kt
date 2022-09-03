@@ -8,6 +8,8 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
@@ -71,12 +73,34 @@ class WeatherFavoritesFragment : Fragment() {
                 .commit()
             Unit
         }
+
         val adapter = WeatherFavoritesRecyclerViewAdapter(onFavoriteClickListener)
         binding.recyclerView.adapter = adapter
+        val itemTouchHelper = ItemTouchHelper(object: ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.START
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val weatherFavoritesViewHolder = (viewHolder as WeatherFavoritesViewHolder)
+                val location = weatherFavoritesViewHolder.getLocation()
+                location?.let {
+                    viewModel.addOrRemoveFromFavorites(location, false)
+                }
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.getFavorites()?.collect {
+                viewModel.favoritesList.collect {
                     adapter.submitList(it)
                 }
             }

@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.*
@@ -266,8 +267,9 @@ class ForecastDaoTest {
         forecastDao.insertLocations(somePlace)
         forecastDao.insertCurrentForecasts(forecast)
 
-        val mapOfForecasts = forecastDao.getCurrentForecastForAllFavoriteLocations()
-        assertEquals(mapOf(somePlace to forecast), mapOfForecasts)
+        val flow = forecastDao.getCurrentForecastForAllFavoriteLocations()
+        val forecastFromDb = flow.first()[somePlace]
+        assertEquals(forecast, forecastFromDb)
     }
 
     @Test

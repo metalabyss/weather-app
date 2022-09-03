@@ -64,14 +64,14 @@ class WeatherDatasourceManager(
 
     suspend fun getLatestFavoriteForecasts(fetchFromRemote: Boolean = false): Flow<List<BriefCurrentForecastWithLocation>> {
         return flow {
-            var listOfForecasts = dao.getCurrentForecastForAllFavoriteLocations()
-                .map { entry ->
-                    val location = entry.key
-                    val forecast = entry.value
-
-                    forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
+            dao.getCurrentForecastForAllFavoriteLocations()
+                .collect {
+                    emit(it.map { entry ->
+                        val location = entry.key
+                        val forecast = entry.value
+                        forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
+                    })
                 }
-            emit(listOfForecasts)
 
             val lastSyncTime = lastSyncSharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
             val currentTime = System.currentTimeMillis()
@@ -82,14 +82,14 @@ class WeatherDatasourceManager(
 
                 downloadLatestForecastsAndSaveToDb(locations)
 
-                listOfForecasts = dao.getCurrentForecastForAllFavoriteLocations()
-                    .map { entry ->
-                        val location = entry.key
-                        val forecast = entry.value
-
-                        forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
+                dao.getCurrentForecastForAllFavoriteLocations()
+                    .collect {
+                        emit(it.map { entry ->
+                            val location = entry.key
+                            val forecast = entry.value
+                            forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
+                        })
                     }
-                emit(listOfForecasts)
 
                 with(lastSyncSharedPrefs.edit()) {
                     putLong(lastSyncTimeSharedPrefsKey, System.currentTimeMillis())
