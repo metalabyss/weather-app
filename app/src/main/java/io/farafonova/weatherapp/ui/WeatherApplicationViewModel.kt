@@ -30,15 +30,17 @@ class WeatherApplicationViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            executeLongTask(
-                { datasourceManager.getLatestFavoriteForecasts().collect { list -> favoritesList.value = list } },
-                { printErrorMessageToLogAndShowItToUser(it) }
-            )
+            try {
+                datasourceManager.getLatestFavoriteForecasts()
+                    .collect { list -> favoritesList.value = list }
+            } catch (throwable: Throwable) {
+                printErrorMessageToLogAndShowItToUser(throwable)
+            }
         }
     }
 
     fun searchForLocations(locationName: String) = viewModelScope.launch(Dispatchers.IO) {
-        executeLongTask({
+        runSuspendFunctionWithProgressIndicator({
             searchResult.value = datasourceManager.findLocationsByName(locationName)
         }, {
             printErrorMessageToLogAndShowItToUser(it)
@@ -57,7 +59,7 @@ class WeatherApplicationViewModel(
 
     suspend fun getCurrentForecastForSpecificLocation(latitude: Double, longitude: Double) =
         viewModelScope.launch(Dispatchers.IO) {
-            executeLongTask({
+            runSuspendFunctionWithProgressIndicator({
                 datasourceManager.getCurrentForecastForSpecificLocation(latitude, longitude)
                     .collect { forecast -> singleDetailedForecast.value = forecast }
             }, {
@@ -67,7 +69,7 @@ class WeatherApplicationViewModel(
 
     suspend fun getHourlyForecastForSpecificLocation(latitude: Double, longitude: Double) =
         viewModelScope.launch(Dispatchers.IO) {
-            executeLongTask({
+            runSuspendFunctionWithProgressIndicator({
                 datasourceManager.getHourlyForecastForSpecificLocation(latitude, longitude)
                     .collect { list -> hourlyForecast.value = list }
             }, {
@@ -91,7 +93,7 @@ class WeatherApplicationViewModel(
 
     suspend fun getDailyForecastsForSpecificLocation(latitude: Double, longitude: Double) =
         viewModelScope.launch(Dispatchers.IO) {
-            executeLongTask({
+            runSuspendFunctionWithProgressIndicator({
                 datasourceManager.getDailyForecastsForSpecificLocation(latitude, longitude)
                     .collect { list -> dailyForecasts.value = list }
             }, {
@@ -99,7 +101,7 @@ class WeatherApplicationViewModel(
             })
         }
 
-    private suspend fun <T> executeLongTask(
+    private suspend fun <T> runSuspendFunctionWithProgressIndicator(
         task: suspend () -> T,
         exceptionHandler: suspend (Throwable) -> Unit
     ): T? {

@@ -11,16 +11,27 @@ import io.farafonova.weatherapp.domain.model.BriefDailyForecastWithLocation
 import io.farafonova.weatherapp.domain.model.DailyForecast
 import io.farafonova.weatherapp.domain.model.HourlyForecastWithLocation
 import io.farafonova.weatherapp.persistence.database.LocationEntity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class ForecastWithLocationRepository(
     private val dao: ForecastDao,
     private val lastSyncSharedPrefs: SharedPreferences,
-    private val lastSyncTimeSharedPrefsKey: String
+    private val lastSyncTimeSharedPrefsKey: String,
+    private val refreshIntervalMs: Long = Duration.ofMinutes(15).toMillis(),
+    private val flowOfRefreshTime: Flow<Long> = flow {
+        while (true) {
+            emit(System.currentTimeMillis())
+            delay(refreshIntervalMs)
+        }
+    }
 ) {
     suspend fun findLocationsByName(name: String): List<Location>? {
         return GeocodingDataSource.getLocationByName(name)
@@ -51,40 +62,36 @@ class ForecastWithLocationRepository(
         }
     }
 
-    suspend fun getLatestFavoriteForecasts(fetchFromRemote: Boolean = false): Flow<List<BriefCurrentForecastWithLocation>> {
-        return flow {
-            dao.getCurrentForecastForAllFavoriteLocations()
-                .collect {
-                    emit(it.map { entry ->
-                        val location = entry.key
-                        val forecast = entry.value
-                        forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
-                    })
-                }
-
-            val lastSyncTime = lastSyncSharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
-            val currentTime = System.currentTimeMillis()
-            val updateWasLongAgo = lastSyncTime == 0L || currentTime - lastSyncTime > 1800000L
-
-            if (fetchFromRemote || updateWasLongAgo) {
-                val locations = dao.getAllFavoriteLocations()
-
-                downloadLatestForecastsAndSaveToDb(locations)
-
-                dao.getCurrentForecastForAllFavoriteLocations()
-                    .collect {
-                        emit(it.map { entry ->
-                            val location = entry.key
-                            val forecast = entry.value
-                            forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
-                        })
-                    }
-
-                with(lastSyncSharedPrefs.edit()) {
-                    putLong(lastSyncTimeSharedPrefsKey, System.currentTimeMillis())
-                    apply()
+    fun getLatestFavoriteForecasts(): Flow<List<BriefCurrentForecastWithLocation>> {
+        return dao.getCurrentForecastForAllFavoriteLocations()
+            .map {
+                it.map { entry ->
+                    val location = entry.key
+                    val forecast = entry.value
+                    forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
                 }
             }
+            .combine(flowOfRefreshTime) { forecasts, currentTime ->
+                val lastSyncTime = getLastSyncTime()
+                val neverSynchronized = lastSyncTime == 0L
+                val updateWasLongAgo = currentTime - lastSyncTime > refreshIntervalMs
+                val shouldUpdateForecast = neverSynchronized || updateWasLongAgo
+
+                if (shouldUpdateForecast) {
+                    refreshAllFavoriteForecastsFromRemote()
+                    saveLastSyncTime()
+                }
+
+                forecasts
+            }
+    }
+
+    private fun getLastSyncTime() = lastSyncSharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
+
+    private fun saveLastSyncTime() {
+        with(lastSyncSharedPrefs.edit()) {
+            putLong(lastSyncTimeSharedPrefsKey, System.currentTimeMillis())
+            apply()
         }
     }
 
