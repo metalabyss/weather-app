@@ -104,19 +104,19 @@ class ForecastWithLocationRepository(
                     println("Previous location: $location")
                     println("Updated location: $updatedLocation")
                 }
-                dao.insertCurrentForecasts(
-                    response.currentWeatherResponse.toCurrentForecastEntity(latitude, longitude)
-                )
-                val hourlyWeather = response.hourlyWeather.map {
+                val currentForecastEntity = response.currentWeatherResponse
+                    .toCurrentForecastEntity(latitude, longitude)
+
+                val hourlyForecastEntities = response.hourlyWeather.map {
                     it.toHourlyForecastEntity(latitude, longitude)
                 }
-                dao.insertHourlyForecasts(*hourlyWeather.toTypedArray())
-
-                val dailyForecasts = response.dailyWeather.map {
+                val dailyForecastEntities = response.dailyWeather.map {
                     it.toDailyForecastEntity(latitude, longitude)
                 }
-                dao.insertDailyForecasts(*dailyForecasts.toTypedArray())
-                println("Downloaded: $dailyForecasts")
+
+                dao.insertOverallForecast(
+                    currentForecastEntity, hourlyForecastEntities, dailyForecastEntities
+                )
             }
         }
     }

@@ -76,4 +76,15 @@ interface ForecastDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDailyForecasts(vararg forecasts: DailyForecastEntity)
+
+    @Transaction
+    suspend fun insertOverallForecast(
+        currentForecast: CurrentForecastEntity,
+        hourlyForecasts: List<HourlyForecastEntity>,
+        dailyForecasts: List<DailyForecastEntity>
+    ) {
+        insertCurrentForecasts(currentForecast)
+        insertHourlyForecasts(*hourlyForecasts.toTypedArray())
+        insertDailyForecasts(*dailyForecasts.toTypedArray())
+    }
 }
