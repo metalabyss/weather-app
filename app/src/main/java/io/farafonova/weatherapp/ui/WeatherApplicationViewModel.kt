@@ -3,7 +3,7 @@ package io.farafonova.weatherapp.ui
 import android.util.Log
 import androidx.lifecycle.*
 import io.farafonova.weatherapp.domain.model.Location
-import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
+import io.farafonova.weatherapp.persistence.ForecastWithLocationRepository
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefDailyForecastWithLocation
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class WeatherApplicationViewModel(
-    private val datasourceManager: WeatherDatasourceManager,
+    private val datasourceManager: ForecastWithLocationRepository,
     private val lightOutsideUseCase: DefineIsItLightOutsideUseCase,
 ) : ViewModel() {
 
@@ -123,7 +123,7 @@ class WeatherApplicationViewModel(
     }
 }
 
-class WeatherApplicationViewModelFactory(private val datasourceManager: WeatherDatasourceManager) :
+class WeatherApplicationViewModelFactory(private val datasourceManager: ForecastWithLocationRepository) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WeatherApplicationViewModel::class.java)) {

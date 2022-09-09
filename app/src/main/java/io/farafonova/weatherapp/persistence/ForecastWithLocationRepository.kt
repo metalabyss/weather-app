@@ -2,9 +2,9 @@ package io.farafonova.weatherapp.persistence
 
 import android.content.SharedPreferences
 import io.farafonova.weatherapp.persistence.database.ForecastDao
-import io.farafonova.weatherapp.persistence.network.geocoding.GeocodingRepository
+import io.farafonova.weatherapp.persistence.network.geocoding.GeocodingDataSource
 import io.farafonova.weatherapp.domain.model.Location
-import io.farafonova.weatherapp.persistence.network.weather.WeatherRepository
+import io.farafonova.weatherapp.persistence.network.weather.WeatherDataSource
 import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefDailyForecastWithLocation
@@ -17,24 +17,13 @@ import kotlinx.coroutines.flow.flowOf
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class WeatherDatasourceManager(
+class ForecastWithLocationRepository(
     private val dao: ForecastDao,
-    private val apiKey: String,
-    private val oneCallApiBaseUrl: String,
-    private val geocodingApiBaseUrl: String,
     private val lastSyncSharedPrefs: SharedPreferences,
     private val lastSyncTimeSharedPrefsKey: String
 ) {
-    private val weatherRepository: WeatherRepository by lazy {
-        WeatherRepository(oneCallApiBaseUrl, apiKey)
-    }
-
-    private val geocodingRepository: GeocodingRepository by lazy {
-        GeocodingRepository(geocodingApiBaseUrl, apiKey)
-    }
-
     suspend fun findLocationsByName(name: String): List<Location>? {
-        return geocodingRepository.getLocationByName(name)
+        return GeocodingDataSource.getLocationByName(name)
             ?.map {
                 val inFavorites =
                     dao.isLocationAlreadyInFavorites(
@@ -106,7 +95,7 @@ class WeatherDatasourceManager(
             val longitude = location.longitude
 
             val overallWeatherResponse =
-                weatherRepository.getWeather(latitude, longitude)
+                WeatherDataSource.getWeather(latitude, longitude)
 
             overallWeatherResponse?.let { response ->
                 if (location.timezoneOffset != response.timezoneOffset) {

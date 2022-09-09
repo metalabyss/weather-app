@@ -1,22 +1,28 @@
 package io.farafonova.weatherapp.persistence.network.geocoding
 
 import android.util.Log
+import io.farafonova.weatherapp.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 
-class GeocodingRepository(baseUrl: String, private val apiKey: String) {
-    private val maxNumberOfLocations: Int = 5
+object GeocodingDataSource {
+    private val TAG = GeocodingDataSource::class.qualifiedName
+
+    private const val maxNumberOfLocations: Int = 5
+    private const val baseUrl = BuildConfig.OPENWEATHER_API_BASE_URL
+    private const val prefix = BuildConfig.GEOCODING_PREFIX
+    private const val apiKey = BuildConfig.API_KEY
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl(baseUrl)
+        .baseUrl(baseUrl + prefix)
         .addConverterFactory(JacksonConverterFactory.create())
         .build()
 
-    private val geocodingService: GeocodingService = retrofit.create(GeocodingService::class.java)
+    private val geocodingApi: GeocodingApi = retrofit.create(GeocodingApi::class.java)
 
     suspend fun getLocationByName(locationName: String): List<LocationResponse>? {
         val response =
-            geocodingService.findLocationByName(locationName, maxNumberOfLocations, apiKey)
+            geocodingApi.findLocationByName(locationName, maxNumberOfLocations, apiKey)
 
         return if (response.isSuccessful) {
             response.body()
@@ -24,9 +30,5 @@ class GeocodingRepository(baseUrl: String, private val apiKey: String) {
             Log.e(TAG, "Failed to get geo data.")
             return null
         }
-    }
-
-    companion object {
-        private val TAG = GeocodingRepository::class.qualifiedName
     }
 }

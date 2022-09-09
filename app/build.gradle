@@ -21,6 +21,15 @@ android {
                 arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+
+        buildConfigField "String", "OPENWEATHER_API_BASE_URL", '"https://api.openweathermap.org/"'
+        buildConfigField "String", "ONECALL_PREFIX", '"data/2.5/"'
+        buildConfigField "String", "GEOCODING_PREFIX", '"geo/1.0/"'
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+        buildConfigField "String", "API_KEY", "\"${properties.getProperty("API_KEY")}\""
     }
 
     buildTypes {

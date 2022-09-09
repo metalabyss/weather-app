@@ -1,12 +1,12 @@
 package io.farafonova.weatherapp.domain.usecase
 
 import io.farafonova.weatherapp.domain.model.DailyForecast
-import io.farafonova.weatherapp.persistence.WeatherDatasourceManager
+import io.farafonova.weatherapp.persistence.ForecastWithLocationRepository
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
-class DefineIsItLightOutsideUseCase(private val datasourceManager: WeatherDatasourceManager) {
+class DefineIsItLightOutsideUseCase(private val datasourceManager: ForecastWithLocationRepository) {
     suspend operator fun invoke(
         latitude: Double,
         longitude: Double,

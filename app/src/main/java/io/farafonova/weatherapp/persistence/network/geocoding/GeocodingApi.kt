@@ -4,7 +4,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface GeocodingService {
+interface GeocodingApi {
     @GET("direct")
     suspend fun findLocationByName(
         @Query("q") name: String,
