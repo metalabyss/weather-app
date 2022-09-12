@@ -2,6 +2,7 @@ package io.farafonova.weatherapp.ui.favorites
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
@@ -27,11 +28,6 @@ class WeatherFavoritesFragment : Fragment() {
         WeatherApplicationViewModelFactory((activity?.application as WeatherApplication).datasourceManager)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,20 +38,6 @@ class WeatherFavoritesFragment : Fragment() {
             lifecycleOwner = viewLifecycleOwner
             weatherViewModel = viewModel
             isLongTaskRunning = viewModel.isLongTaskRunning
-        }
-
-        binding.appBar.inflateMenu(R.menu.toolbar_menu)
-        binding.appBar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.action_search -> {
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.container, LocationSearchFragment())
-                        .addToBackStack(null)
-                        .commit()
-                    true
-                }
-                else -> false
-            }
         }
 
         binding.recyclerView.setHasFixedSize(true)
@@ -76,7 +58,7 @@ class WeatherFavoritesFragment : Fragment() {
 
         val adapter = WeatherFavoritesRecyclerViewAdapter(onFavoriteClickListener)
         binding.recyclerView.adapter = adapter
-        val itemTouchHelper = ItemTouchHelper(object: ItemTouchHelper.SimpleCallback(
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
             0,
             ItemTouchHelper.START
         ) {
@@ -118,5 +100,28 @@ class WeatherFavoritesFragment : Fragment() {
             }
         }
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.appBar.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_weather_favorites, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_search -> {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.container, LocationSearchFragment())
+                            .addToBackStack(null)
+                            .commit()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 }

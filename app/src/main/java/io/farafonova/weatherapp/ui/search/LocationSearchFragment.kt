@@ -16,9 +16,7 @@ import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentLocationSearchBinding
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class LocationSearchFragment : Fragment() {
     private val viewModel: WeatherApplicationViewModel by activityViewModels {
@@ -26,11 +24,6 @@ class LocationSearchFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentLocationSearchBinding
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

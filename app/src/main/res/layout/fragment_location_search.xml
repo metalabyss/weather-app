@@ -42,6 +42,7 @@
                 android:layout_height="match_parent"
                 android:maxWidth="10000dp"
                 android:iconifiedByDefault="false"
+                android:queryHint="@string/search_hint"
                 android:onQueryTextSubmit="@{query -> queryTextListener.onQueryTextSubmit(query)}"
                 android:onQueryTextChange="@{query -> queryTextListener.onQueryTextChange(query)}"
                 android:queryBackground="@android:color/transparent" />

@@ -1,19 +1,29 @@
 <resources>
+    <!-- Common -->
     <string name="app_name">WeatherApp</string>
-    <string name="toolbar_settings_title">Settings</string>
-    <string name="toolbar_search_title">Search</string>
     <string name="prefs_file_last_sync">io.farafonova.weatherapp.PREFS_FILE_KEY_LAST_SYNC</string>
     <string name="prefs_key_last_sync_time">LAST_SYNC_TIME</string>
-    <string name="search_hint">Search for weather in places</string>
+    <string name="button_text_ok">OK</string>
+    <string name="template_temperature">%1$s°</string>
+    <string name="toolbar_settings_title">Settings</string>
+    <string name="toolbar_search_title">Search</string>
+
+    <!-- Favorites Fragment -->
+    <string name="template_feels_like_temperature_lowercase">"feels like %1$s°"</string>
+    <string name="date_time_pattern_day_of_week_day_of_moth_hours_minutes">EEE, d LLL, HH:mm</string>
+
+    <!-- Search Fragment -->
+    <string name="search_hint">Type location name here…</string>
+    <string name="location_search_no_results_message">No results.</string>
     <string name="searched_location_state_template_string">%1$s, %2$s</string>
+
+    <!-- Current Forecast Fragment -->
     <string name="current_forecast_wind_speed">Wind</string>
     <string name="current_forecast_wind_direction">W. Direction</string>
     <string name="current_forecast_humidity">Humidity</string>
     <string name="current_forecast_pressure">Pressure</string>
     <string name="current_forecast_uvi">UV index</string>
-    <string name="template_temperature">%1$s°</string>
     <string name="template_feels_like_temperature_uppercase">"Feels like %1$s°"</string>
-    <string name="template_feels_like_temperature_lowercase">"feels like %1$s°"</string>
     <string name="template_temperature_with_feels_like_temperature">%1$s°/ like %2$s°</string>
     <string name="template_wind_speed">%1$s m/s</string>
     <string name="template_humidity">%1$s%%</string>
