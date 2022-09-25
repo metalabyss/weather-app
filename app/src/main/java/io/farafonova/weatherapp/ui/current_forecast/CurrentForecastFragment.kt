@@ -19,8 +19,13 @@ import kotlinx.coroutines.launch
 
 class CurrentForecastFragment : Fragment() {
     private lateinit var binding: FragmentCurrentForecastBinding
+
     private val viewModel: WeatherApplicationViewModel by activityViewModels {
-        WeatherApplicationViewModelFactory((activity?.application as WeatherApplication).datasourceManager)
+        val app = activity?.application as WeatherApplication
+        WeatherApplicationViewModelFactory(
+            app.repository,
+            app.refreshWorkInfo
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

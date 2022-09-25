@@ -1,38 +1,24 @@
 package io.farafonova.weatherapp.persistence
 
-import android.content.SharedPreferences
-import io.farafonova.weatherapp.persistence.database.ForecastDao
-import io.farafonova.weatherapp.persistence.network.geocoding.GeocodingDataSource
-import io.farafonova.weatherapp.domain.model.Location
-import io.farafonova.weatherapp.persistence.network.weather.WeatherDataSource
-import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefDailyForecastWithLocation
+import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.DailyForecast
 import io.farafonova.weatherapp.domain.model.HourlyForecastWithLocation
+import io.farafonova.weatherapp.domain.model.Location
+import io.farafonova.weatherapp.persistence.database.ForecastDao
 import io.farafonova.weatherapp.persistence.database.LocationEntity
-import kotlinx.coroutines.delay
+import io.farafonova.weatherapp.persistence.network.geocoding.GeocodingDataSource
+import io.farafonova.weatherapp.persistence.network.weather.WeatherDataSource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class ForecastWithLocationRepository(
-    private val dao: ForecastDao,
-    private val lastSyncSharedPrefs: SharedPreferences,
-    private val lastSyncTimeSharedPrefsKey: String,
-    private val refreshIntervalMs: Long = Duration.ofMinutes(15).toMillis(),
-    private val flowOfRefreshTime: Flow<Long> = flow {
-        while (true) {
-            emit(System.currentTimeMillis())
-            delay(refreshIntervalMs)
-        }
-    }
-) {
+class ForecastWithLocationRepository(private val dao: ForecastDao) {
+
     suspend fun findLocationsByName(name: String): List<Location>? {
         return GeocodingDataSource.getLocationByName(name)
             ?.map {
@@ -71,28 +57,6 @@ class ForecastWithLocationRepository(
                     forecast.toBriefCurrentForecastWithLocation(location.toLocationModel())
                 }
             }
-            .combine(flowOfRefreshTime) { forecasts, currentTime ->
-                val lastSyncTime = getLastSyncTime()
-                val neverSynchronized = lastSyncTime == 0L
-                val updateWasLongAgo = currentTime - lastSyncTime > refreshIntervalMs
-                val shouldUpdateForecast = neverSynchronized || updateWasLongAgo
-
-                if (shouldUpdateForecast) {
-                    refreshAllFavoriteForecastsFromRemote()
-                    saveLastSyncTime()
-                }
-
-                forecasts
-            }
-    }
-
-    private fun getLastSyncTime() = lastSyncSharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
-
-    private fun saveLastSyncTime() {
-        with(lastSyncSharedPrefs.edit()) {
-            putLong(lastSyncTimeSharedPrefsKey, System.currentTimeMillis())
-            apply()
-        }
     }
 
     private suspend fun downloadLatestForecastsAndSaveToDb(locations: List<LocationEntity>) {
@@ -126,6 +90,11 @@ class ForecastWithLocationRepository(
                 )
             }
         }
+    }
+
+    suspend fun refreshAllFavoriteForecastsFromRemote() {
+        val locations = dao.getAllFavoriteLocations()
+        downloadLatestForecastsAndSaveToDb(locations)
     }
 
     suspend fun getCurrentForecastForSpecificLocation(

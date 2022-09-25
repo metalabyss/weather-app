@@ -20,7 +20,11 @@ import kotlinx.coroutines.launch
 
 class LocationSearchFragment : Fragment() {
     private val viewModel: WeatherApplicationViewModel by activityViewModels {
-        WeatherApplicationViewModelFactory((activity?.application as WeatherApplication).datasourceManager)
+        val app = activity?.application as WeatherApplication
+        WeatherApplicationViewModelFactory(
+            app.repository,
+            app.refreshWorkInfo
+        )
     }
 
     private lateinit var binding: FragmentLocationSearchBinding

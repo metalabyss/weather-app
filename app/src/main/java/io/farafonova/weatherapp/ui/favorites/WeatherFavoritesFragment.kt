@@ -19,13 +19,19 @@ import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
 import io.farafonova.weatherapp.ui.current_forecast.CurrentForecastFragment
 import io.farafonova.weatherapp.ui.search.LocationSearchFragment
+import io.farafonova.weatherapp.ui.settings.SettingsFragment
 import kotlinx.coroutines.launch
 
 
 class WeatherFavoritesFragment : Fragment() {
     private lateinit var binding: FragmentWeatherFavoritesBinding
+
     private val viewModel: WeatherApplicationViewModel by activityViewModels {
-        WeatherApplicationViewModelFactory((activity?.application as WeatherApplication).datasourceManager)
+        val app = activity?.application as WeatherApplication
+        WeatherApplicationViewModelFactory(
+            app.repository,
+            app.refreshWorkInfo
+        )
     }
 
     override fun onCreateView(
@@ -38,6 +44,7 @@ class WeatherFavoritesFragment : Fragment() {
             lifecycleOwner = viewLifecycleOwner
             weatherViewModel = viewModel
             isLongTaskRunning = viewModel.isLongTaskRunning
+            refreshWorkInfo = viewModel.refreshWorkInfo
         }
 
         binding.recyclerView.setHasFixedSize(true)
@@ -115,6 +122,13 @@ class WeatherFavoritesFragment : Fragment() {
                     R.id.action_search -> {
                         parentFragmentManager.beginTransaction()
                             .replace(R.id.container, LocationSearchFragment())
+                            .addToBackStack(null)
+                            .commit()
+                        true
+                    }
+                    R.id.action_settings -> {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.container, SettingsFragment())
                             .addToBackStack(null)
                             .commit()
                         true

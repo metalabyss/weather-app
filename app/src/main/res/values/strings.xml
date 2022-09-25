@@ -33,7 +33,10 @@
     <string name="date_time_pattern_last_updated">dd.MM, HH:mm</string>
     <string name="date_time_pattern_hours_and_minutes_only">HH:mm</string>
     <string name="date_time_pattern_day_of_week_day_of_month">EEE, d LLL</string>
-    <string name="date_time_pattern_day_of_week_day_of_moth_hours_minutes">EEE, d LLL, HH:mm</string>
-    <string name="button_text_ok">OK</string>
-    <string name="location_search_no_results_message">No results.</string>
+
+    <!-- Preference Titles -->
+    <string name="refresh_header">Refresh</string>
+
+    <!-- Sync Preferences -->
+    <string name="refresh_title">Auto refresh</string>
 </resources>

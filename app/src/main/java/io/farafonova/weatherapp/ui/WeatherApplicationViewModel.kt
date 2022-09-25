@@ -1,14 +1,18 @@
 package io.farafonova.weatherapp.ui
 
 import android.util.Log
-import androidx.lifecycle.*
-import io.farafonova.weatherapp.domain.model.Location
-import io.farafonova.weatherapp.persistence.ForecastWithLocationRepository
-import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import io.farafonova.weatherapp.domain.model.BriefCurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.BriefDailyForecastWithLocation
+import io.farafonova.weatherapp.domain.model.CurrentForecastWithLocation
 import io.farafonova.weatherapp.domain.model.HourlyForecastWithLocation
+import io.farafonova.weatherapp.domain.model.Location
 import io.farafonova.weatherapp.domain.usecase.DefineIsItLightOutsideUseCase
+import io.farafonova.weatherapp.persistence.ForecastWithLocationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,6 +22,7 @@ import kotlinx.coroutines.launch
 class WeatherApplicationViewModel(
     private val datasourceManager: ForecastWithLocationRepository,
     private val lightOutsideUseCase: DefineIsItLightOutsideUseCase,
+    val refreshWorkInfo: LiveData<WorkInfo?>
 ) : ViewModel() {
 
     val searchResult by lazy { MutableStateFlow<List<Location>?>(null) }
@@ -125,14 +130,18 @@ class WeatherApplicationViewModel(
     }
 }
 
-class WeatherApplicationViewModelFactory(private val datasourceManager: ForecastWithLocationRepository) :
+class WeatherApplicationViewModelFactory(
+    private val datasourceManager: ForecastWithLocationRepository,
+    private val refreshWorkInfo: LiveData<WorkInfo?>
+) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WeatherApplicationViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return WeatherApplicationViewModel(
                 datasourceManager,
-                DefineIsItLightOutsideUseCase(datasourceManager)
+                DefineIsItLightOutsideUseCase(datasourceManager),
+                refreshWorkInfo
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
