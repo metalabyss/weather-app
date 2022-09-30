@@ -27,13 +27,16 @@ class LocationSearchFragment : Fragment() {
         )
     }
 
-    private lateinit var binding: FragmentLocationSearchBinding
+    private var _binding: FragmentLocationSearchBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentLocationSearchBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentLocationSearchBinding
+            .inflate(layoutInflater, container, false)
+
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
             locationSearchViewModel = viewModel
@@ -92,5 +95,10 @@ class LocationSearchFragment : Fragment() {
             val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(binding.searchView, 0)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

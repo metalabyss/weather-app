@@ -24,7 +24,8 @@ import kotlinx.coroutines.launch
 
 
 class WeatherFavoritesFragment : Fragment() {
-    private lateinit var binding: FragmentWeatherFavoritesBinding
+    private var _binding: FragmentWeatherFavoritesBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel: WeatherApplicationViewModel by activityViewModels {
         val app = activity?.application as WeatherApplication
@@ -39,7 +40,7 @@ class WeatherFavoritesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        binding = FragmentWeatherFavoritesBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentWeatherFavoritesBinding.inflate(layoutInflater, container, false)
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
             weatherViewModel = viewModel
@@ -137,5 +138,10 @@ class WeatherFavoritesFragment : Fragment() {
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

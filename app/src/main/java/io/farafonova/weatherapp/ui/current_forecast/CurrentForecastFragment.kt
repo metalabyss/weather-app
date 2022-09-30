@@ -18,7 +18,9 @@ import kotlinx.coroutines.launch
 
 
 class CurrentForecastFragment : Fragment() {
-    private lateinit var binding: FragmentCurrentForecastBinding
+    private var _binding: FragmentCurrentForecastBinding? = null
+    private val binding get() = _binding!!
+
 
     private val viewModel: WeatherApplicationViewModel by activityViewModels {
         val app = activity?.application as WeatherApplication
@@ -48,7 +50,9 @@ class CurrentForecastFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentCurrentForecastBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentCurrentForecastBinding
+            .inflate(layoutInflater, container, false)
+
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
             isLongTaskRunning = viewModel.isLongTaskRunning
@@ -84,4 +88,8 @@ class CurrentForecastFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
