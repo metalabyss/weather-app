@@ -45,7 +45,7 @@ class WeatherApplicationViewModel(
     }
 
     fun searchForLocations(locationName: String) = viewModelScope.launch(Dispatchers.IO) {
-        runSuspendFunctionWithProgressIndicator({
+        runSuspendFunctionWithProgressIndicator(isLongTaskRunning, {
             searchResult.value = datasourceManager.findLocationsByName(locationName)
         }, {
             printErrorMessageToLogAndShowItToUser(it)
@@ -64,7 +64,7 @@ class WeatherApplicationViewModel(
 
     suspend fun getCurrentForecastForSpecificLocation(latitude: Double, longitude: Double) =
         viewModelScope.launch(Dispatchers.IO) {
-            runSuspendFunctionWithProgressIndicator({
+            runSuspendFunctionWithProgressIndicator(isLongTaskRunning, {
                 datasourceManager.getCurrentForecastForSpecificLocation(latitude, longitude)
                     .collect { forecast -> singleDetailedForecast.value = forecast }
             }, {
@@ -74,7 +74,7 @@ class WeatherApplicationViewModel(
 
     suspend fun getHourlyForecastForSpecificLocation(latitude: Double, longitude: Double) =
         viewModelScope.launch(Dispatchers.IO) {
-            runSuspendFunctionWithProgressIndicator({
+            runSuspendFunctionWithProgressIndicator(isLongTaskRunning, {
                 datasourceManager.getHourlyForecastForSpecificLocation(latitude, longitude)
                     .collect { list -> hourlyForecast.value = list }
             }, {
@@ -98,28 +98,13 @@ class WeatherApplicationViewModel(
 
     suspend fun getDailyForecastsForSpecificLocation(latitude: Double, longitude: Double) =
         viewModelScope.launch(Dispatchers.IO) {
-            runSuspendFunctionWithProgressIndicator({
+            runSuspendFunctionWithProgressIndicator(isLongTaskRunning, {
                 datasourceManager.getDailyForecastsForSpecificLocation(latitude, longitude)
                     .collect { list -> dailyForecasts.value = list }
             }, {
                 printErrorMessageToLogAndShowItToUser(it)
             })
         }
-
-    private suspend fun <T> runSuspendFunctionWithProgressIndicator(
-        task: suspend () -> T,
-        exceptionHandler: suspend (Throwable) -> Unit
-    ): T? {
-        isLongTaskRunning.value = true
-        val result = try {
-            task.invoke()
-        } catch (throwable: Throwable) {
-            exceptionHandler.invoke(throwable)
-            null
-        }
-        isLongTaskRunning.value = false
-        return result
-    }
 
     private suspend fun printErrorMessageToLogAndShowItToUser(throwable: Throwable) {
         throwable.localizedMessage?.let { e -> errorMessage.emit(e) }
