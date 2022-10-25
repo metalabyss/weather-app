@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentWeatherFavoritesBinding
@@ -102,6 +103,24 @@ class WeatherFavoritesFragment : Fragment() {
                             .setMessage(it)
                             .setPositiveButton(R.string.button_text_ok) { dialog, which -> dialog.dismiss() }
                             .show()
+                    }
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.snackbarOptions.collect { options ->
+                    context?.let {
+                        val notificationText = options.notificationText.asString(it)
+                        val actionText = options.actionText.asString(it)
+
+                        val snackbar = Snackbar.make(
+                            binding.favoritesCoordinatorLayout,
+                            notificationText,
+                            Snackbar.LENGTH_SHORT
+                        )
+                        snackbar.setAction(actionText) { _ -> options.action.invoke() }
+                        snackbar.show()
                     }
                 }
             }

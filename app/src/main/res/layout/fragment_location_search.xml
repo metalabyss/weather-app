@@ -17,7 +17,8 @@
         <import type="android.view.View" />
     </data>
 
-    <FrameLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.search.LocationSearchFragment">
@@ -70,11 +71,10 @@
             android:id="@+id/rv_search_results"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="?attr/actionBarSize"
             android:visibility="@{!locationSearchViewModel.searchResult.empty ? View.VISIBLE : View.INVISIBLE}"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
 
         </androidx.recyclerview.widget.RecyclerView>
-    </FrameLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
