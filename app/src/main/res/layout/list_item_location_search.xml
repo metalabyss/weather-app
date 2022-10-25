@@ -9,7 +9,7 @@
             type="io.farafonova.weatherapp.domain.model.Location" />
         <variable
             name="parentViewModel"
-            type="io.farafonova.weatherapp.ui.WeatherApplicationViewModel" />
+            type="io.farafonova.weatherapp.ui.search.LocationSearchViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
