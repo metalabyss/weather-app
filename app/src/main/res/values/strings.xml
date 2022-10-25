@@ -7,10 +7,13 @@
     <string name="template_temperature">%1$s°</string>
     <string name="toolbar_settings_title">Settings</string>
     <string name="toolbar_search_title">Search</string>
+    <string name="message_add_location">%1$s added to favorites</string>
+    <string name="message_remove_location">%1$s removed from favorites</string>
 
     <!-- Favorites Fragment -->
     <string name="template_feels_like_temperature_lowercase">"feels like %1$s°"</string>
     <string name="date_time_pattern_day_of_week_day_of_moth_hours_minutes">EEE, d LLL, HH:mm</string>
+    <string name="favorites_snackbar_undo">Undo</string>
 
     <!-- Search Fragment -->
     <string name="search_hint">Type location name here…</string>

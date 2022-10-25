@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentLocationSearchBinding
@@ -80,6 +81,20 @@ class LocationSearchFragment : Fragment() {
                         .setMessage(it)
                         .setPositiveButton(R.string.button_text_ok) { dialog, which -> dialog.dismiss() }
                         .show() }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.actionMessage.collect { stringRes ->
+                    context?.let {
+                        Snackbar.make(
+                            binding.coordinatorLayout,
+                            stringRes.asString(it),
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }
