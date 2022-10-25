@@ -6,7 +6,7 @@
     <data>
         <variable
             name="locationSearchViewModel"
-            type="io.farafonova.weatherapp.ui.WeatherApplicationViewModel" />
+            type="io.farafonova.weatherapp.ui.search.LocationSearchViewModel" />
         <variable
             name="isLongTaskRunning"
             type="kotlinx.coroutines.flow.MutableStateFlow&lt;Boolean>" />

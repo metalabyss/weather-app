@@ -15,7 +15,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentWeatherFavoritesBinding
-import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
 import io.farafonova.weatherapp.ui.current_forecast.CurrentForecastFragment
 import io.farafonova.weatherapp.ui.search.LocationSearchFragment
@@ -27,7 +26,7 @@ class WeatherFavoritesFragment : Fragment() {
     private var _binding: FragmentWeatherFavoritesBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: WeatherApplicationViewModel by activityViewModels {
+    private val viewModel: WeatherFavoritesViewModel by activityViewModels {
         val app = activity?.application as WeatherApplication
         WeatherApplicationViewModelFactory(
             app.repository,

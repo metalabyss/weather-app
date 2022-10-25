@@ -14,12 +14,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentLocationSearchBinding
-import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
 import kotlinx.coroutines.launch
 
 class LocationSearchFragment : Fragment() {
-    private val viewModel: WeatherApplicationViewModel by activityViewModels {
+    private val viewModel: LocationSearchViewModel by activityViewModels {
         val app = activity?.application as WeatherApplication
         WeatherApplicationViewModelFactory(
             app.repository,

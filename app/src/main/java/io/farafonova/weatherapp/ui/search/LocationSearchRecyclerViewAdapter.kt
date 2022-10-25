@@ -7,9 +7,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.farafonova.weatherapp.databinding.ListItemLocationSearchBinding
 import io.farafonova.weatherapp.domain.model.Location
-import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 
-class LocationSearchRecyclerViewAdapter(private val parentViewModel: WeatherApplicationViewModel) :
+class LocationSearchRecyclerViewAdapter(private val parentViewModel: LocationSearchViewModel) :
     ListAdapter<Location, LocationSearchViewHolder>(LocationSearchEntryComparator()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationSearchViewHolder {
@@ -30,7 +29,7 @@ class LocationSearchRecyclerViewAdapter(private val parentViewModel: WeatherAppl
 
 class LocationSearchViewHolder(private val binding: ListItemLocationSearchBinding) :
     RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: Location, parentViewModel: WeatherApplicationViewModel) {
+        fun bind(item: Location, parentViewModel: LocationSearchViewModel) {
             binding.searchEntry = item
             binding.parentViewModel = parentViewModel
             binding.executePendingBindings()

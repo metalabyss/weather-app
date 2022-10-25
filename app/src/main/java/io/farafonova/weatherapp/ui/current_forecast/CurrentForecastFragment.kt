@@ -10,9 +10,10 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import io.farafonova.weatherapp.R
 import io.farafonova.weatherapp.WeatherApplication
 import io.farafonova.weatherapp.databinding.FragmentCurrentForecastBinding
-import io.farafonova.weatherapp.ui.WeatherApplicationViewModel
 import io.farafonova.weatherapp.ui.WeatherApplicationViewModelFactory
 import kotlinx.coroutines.launch
 
@@ -22,7 +23,7 @@ class CurrentForecastFragment : Fragment() {
     private val binding get() = _binding!!
 
 
-    private val viewModel: WeatherApplicationViewModel by activityViewModels {
+    private val viewModel: CurrentForecastViewModel by activityViewModels {
         val app = activity?.application as WeatherApplication
         WeatherApplicationViewModelFactory(
             app.repository,
@@ -68,6 +69,17 @@ class CurrentForecastFragment : Fragment() {
 
         val dailyForecastAdapter = DailyForecastRecyclerViewAdapter()
         binding.rvDailyForecast.adapter = dailyForecastAdapter
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.errorMessage.collect {
+                    context?.let { c -> MaterialAlertDialogBuilder(c)
+                        .setMessage(it)
+                        .setPositiveButton(R.string.button_text_ok) { dialog, which -> dialog.dismiss() }
+                        .show() }
+                }
+            }
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

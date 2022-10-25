@@ -6,7 +6,7 @@
     <data>
         <variable
             name="weatherViewModel"
-            type="io.farafonova.weatherapp.ui.WeatherApplicationViewModel" />
+            type="io.farafonova.weatherapp.ui.favorites.WeatherFavoritesViewModel" />
 
         <variable
             name="isLongTaskRunning"
