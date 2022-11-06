@@ -121,7 +121,7 @@ class ForecastWithLocationRepository(private val dao: ForecastDao) {
     ): Flow<List<HourlyForecastWithLocation>> {
 
         return flow {
-            val currentHour = Instant.now().truncatedTo(ChronoUnit.HOURS).epochSecond
+            val currentHour = currentHourFromEpochInSeconds()
             val location = dao.getSpecificLocation(latitude, longitude)?.toLocationModel()
 
             if (location != null) {
@@ -130,6 +130,9 @@ class ForecastWithLocationRepository(private val dao: ForecastDao) {
             }
         }
     }
+
+    private fun currentHourFromEpochInSeconds() =
+        Instant.now().truncatedTo(ChronoUnit.HOURS).epochSecond
 
     suspend fun getDailyForecast(
         latitude: Double,
