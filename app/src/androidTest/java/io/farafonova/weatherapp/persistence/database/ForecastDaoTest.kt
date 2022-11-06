@@ -288,6 +288,9 @@ class ForecastDaoTest {
             Instant.now().epochSecond,
             15.2,
             10.0,
+            0.0, 2,
+            1000, 10,
+            -7.1, 2.6,
             0.1,
             800
         )
@@ -314,17 +317,23 @@ class ForecastDaoTest {
 
         val forecastLater = HourlyForecastEntity(
             latitude, longitude, hourLaterInstant,
-            15.2, 10.0, 0.1, 800
+            15.2, 10.0, 0.0, 5,
+            1001, 43, 0.0, 0.9,
+            0.1, 800
         )
 
         val forecastCurrent = HourlyForecastEntity(
             latitude, longitude, currentHour,
-            15.2, 10.0, 0.1, 800
+            15.2, 10.0, 0.0, 5,
+            1001, 43, 0.0, 0.9,
+            0.1, 800
         )
 
         val forecastBefore = HourlyForecastEntity(
             latitude, longitude, hourBefore,
-            15.2, 10.0, 0.1, 800
+            15.2, 10.0, 0.0, 5,
+            1001, 43, 0.0, 0.9,
+            0.1, 800
         )
 
         forecastDao.insertHourlyForecasts(forecastBefore, forecastCurrent, forecastLater)

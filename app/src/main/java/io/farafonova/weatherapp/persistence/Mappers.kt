@@ -111,6 +111,9 @@ fun HourlyWeatherResponse.toHourlyForecastEntity(
     latitude, longitude,
     weatherTime,
     temperature, feelsLikeTemperature,
+    windSpeed, windDegree % 360,
+    pressure, humidity,
+    dewPoint, uvi,
     precipitationProbability,
     description[0].conditionId
 )
