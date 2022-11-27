@@ -25,6 +25,9 @@ interface ForecastDao {
     @Query("SELECT * FROM location WHERE in_favorites = 1")
     suspend fun getAllFavoriteLocations(): List<LocationEntity>
 
+    @Query("SELECT * FROM location WHERE in_favorites = 1")
+    fun getAllFavoriteLocationsAsFlow(): Flow<List<LocationEntity>>
+
     @Query(
         "SELECT * FROM current_forecast " +
                 "JOIN location ON location.lat = current_forecast.lat " +

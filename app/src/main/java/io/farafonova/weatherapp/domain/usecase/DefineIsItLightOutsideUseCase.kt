@@ -1,10 +1,6 @@
 package io.farafonova.weatherapp.domain.usecase
 
-import io.farafonova.weatherapp.domain.model.DailyForecast
 import io.farafonova.weatherapp.persistence.ForecastWithLocationRepository
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.temporal.ChronoUnit
 
 class DefineIsItLightOutsideUseCase(private val datasourceManager: ForecastWithLocationRepository) {
     suspend operator fun invoke(
@@ -14,20 +10,14 @@ class DefineIsItLightOutsideUseCase(private val datasourceManager: ForecastWithL
         rawOffset: Int
     ): Boolean {
 
-        val dayStartTime = Instant
-            .ofEpochSecond(rawInstant)
-            .atOffset(ZoneOffset.ofTotalSeconds(rawOffset))
-            .truncatedTo(ChronoUnit.DAYS)
+        val sunriseAndSunset = datasourceManager
+            .getSunriseAndSunsetInLocationOnParticularDay(
+                latitude, longitude, rawInstant, rawOffset
+            )
+        val sunrise = sunriseAndSunset?.first
+        val sunset = sunriseAndSunset?.second
 
-        val dayEndTime = dayStartTime.plusHours(24)
-
-        var dailyForecast: DailyForecast? = null
-        datasourceManager.getDailyForecast(
-            latitude, longitude, dayStartTime.toEpochSecond(), dayEndTime.toEpochSecond()
-        ).collect { dailyForecast = it }
-
-        return dailyForecast?.let {
-            rawInstant >= it.sunriseTime && rawInstant <= it.sunsetTime
-        } ?: false
+        return sunrise != null && sunset != null
+                && rawInstant >= sunrise && rawInstant <= sunset
     }
 }

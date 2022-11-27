@@ -20,7 +20,11 @@ class WeatherApplication : Application(), Configuration.Provider {
     }
 
     val repository by lazy {
-        ForecastWithLocationRepository(database.forecastDao())
+        ForecastWithLocationRepository(
+            database.forecastDao(),
+            defaultSharedPreferences,
+            getString(R.string.prefs_key_last_sync_time)
+        )
     }
 
     private val tasksDataSource by lazy {

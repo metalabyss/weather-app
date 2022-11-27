@@ -61,19 +61,22 @@ class ForecastTasksDataSource(
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         sharedPreferences?.let {
-            val value = sharedPreferences.getString(key, "")
-            Log.i(TAG, "Preference value has been updated to: $value")
 
-            if (key == "refresh" && !value.isNullOrBlank()) {
-                refreshIntervalMinutes = Duration.ofMinutes(value.toLong())
-                workManager.cancelUniqueWork(REFRESH_FORECASTS_PERIODICALLY_TASK)
+            if (key == "refresh") {
+                val value = sharedPreferences.getString(key, "")
+                Log.i(TAG, "Preference value has been updated to: $value")
 
-                cachedWorkInfo = refreshForecastsPeriodically()
-                cachedWorkInfo.observe(ProcessLifecycleOwner.get()) {
-                    _refreshWorkInfo.value = it.firstOrNull()
-                    Log.i(TAG, "Updating _refreshWorkInfo from onSharedPreferenceChanged")
+                if (!value.isNullOrBlank()) {
+                    refreshIntervalMinutes = Duration.ofMinutes(value.toLong())
+                    workManager.cancelUniqueWork(REFRESH_FORECASTS_PERIODICALLY_TASK)
+
+                    cachedWorkInfo = refreshForecastsPeriodically()
+                    cachedWorkInfo.observe(ProcessLifecycleOwner.get()) {
+                        _refreshWorkInfo.value = it.firstOrNull()
+                        Log.i(TAG, "Updating _refreshWorkInfo from onSharedPreferenceChanged")
+                    }
+                    Log.i(TAG, "Task $REFRESH_FORECASTS_PERIODICALLY_TASK has been re-scheduled with interval $refreshIntervalMinutes.")
                 }
-                Log.i(TAG, "Task $REFRESH_FORECASTS_PERIODICALLY_TASK has been re-scheduled with interval $refreshIntervalMinutes.")
             }
         }
     }
