@@ -129,6 +129,38 @@ fun HourlyForecastEntity.toHourlyForecastWithLocationModel(location: Location): 
     )
 }
 
+fun HourlyForecastEntity.toCurrentForecastWithLocation(
+    sunriseTime: Long, sunsetTime: Long, location: Location
+): CurrentForecastWithLocation {
+    return CurrentForecastWithLocation(
+        temperature.roundToInt(),
+        feelsLikeTemperature.roundToInt(),
+        forecastTime,
+        sunriseTime,
+        sunsetTime,
+        windSpeed.roundToInt(),
+        windDegree,
+        pressure,
+        humidity,
+        dewPoint.roundToInt(),
+        uvi,
+        WeatherCondition.valueFrom(weatherConditionId),
+        location
+    )
+}
+
+fun HourlyForecastEntity.toBriefCurrentForecastWithLocation(
+    sunriseTime: Long, sunsetTime: Long, location: Location
+): BriefCurrentForecastWithLocation = BriefCurrentForecastWithLocation(
+    temperature.roundToInt(),
+    feelsLikeTemperature.roundToInt(),
+    forecastTime,
+    sunriseTime,
+    sunsetTime,
+    WeatherCondition.valueFrom(weatherConditionId),
+    location
+)
+
 fun DailyWeatherResponse.toDailyForecastEntity(
     latitude: Double,
     longitude: Double
