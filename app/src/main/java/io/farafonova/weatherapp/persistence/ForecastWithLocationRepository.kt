@@ -60,7 +60,7 @@ class ForecastWithLocationRepository(
         val lastSyncTime = sharedPrefs.getLong(lastSyncTimeSharedPrefsKey, 0L)
         val now = Instant.now().epochSecond
 
-        if (lastSyncTime < now && now < nextHourFromEpochInSeconds(lastSyncTime)) {
+        if (now < nextHourFromEpochInSeconds(lastSyncTime)) {
             return dao.getCurrentForecastForAllFavoriteLocations()
                 .map {
                     it.map { entry ->
