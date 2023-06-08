@@ -11,6 +11,7 @@ import io.farafonova.weatherapp.persistence.ForecastWithLocationRepository
 import io.farafonova.weatherapp.ui.SnackbarOptions
 import io.farafonova.weatherapp.ui.UiText
 import io.farafonova.weatherapp.ui.printErrorMessageToLogAndShowItToUser
+import io.farafonova.weatherapp.ui.runSuspendFunctionWithProgressIndicator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,7 +28,9 @@ class WeatherFavoritesViewModel(
     val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
 
-    init {
+    init { getLatestCachedForecasts() }
+
+    private fun getLatestCachedForecasts() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.getLatestFavoriteForecasts()
@@ -36,6 +39,16 @@ class WeatherFavoritesViewModel(
                 TAG?.let { printErrorMessageToLogAndShowItToUser(it, throwable, errorMessage) }
             }
         }
+    }
+
+    fun refreshForecasts() = viewModelScope.launch {
+        runSuspendFunctionWithProgressIndicator(
+            isProgressIndicatorShowing = isLongTaskRunning,
+            task = { repository.refreshAllFavoriteForecastsFromRemote() },
+            exceptionHandler = { throwable ->
+                TAG?.let { printErrorMessageToLogAndShowItToUser(it, throwable, errorMessage) }
+            }
+        )
     }
 
     fun addOrRemoveFromFavorites(location: Location, shouldBeFavorite: Boolean) : Job =

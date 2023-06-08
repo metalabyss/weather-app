@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.WorkInfo
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import io.farafonova.weatherapp.R
@@ -125,6 +126,14 @@ class WeatherFavoritesFragment : Fragment() {
                 }
             }
         }
+
+        binding.favoritesSwipeRefreshLayout.setOnRefreshListener {
+            if (viewModel.refreshWorkInfo.value?.state != WorkInfo.State.RUNNING
+                && !(viewModel.isLongTaskRunning.value)) {
+                viewModel.refreshForecasts()
+            }
+        }
+
         return binding.root
     }
 
