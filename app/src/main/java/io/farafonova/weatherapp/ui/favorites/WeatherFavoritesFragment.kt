@@ -1,7 +1,14 @@
 package io.farafonova.weatherapp.ui.favorites
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -134,6 +141,17 @@ class WeatherFavoritesFragment : Fragment() {
             }
         }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isLongTaskRunning.collect { isRunning ->
+                    val item = binding.appBar.menu.findItem(R.id.action_refresh)
+                    if (item != null) {
+                        item.isEnabled = !isRunning
+                    }
+                }
+            }
+        }
+
         return binding.root
     }
 
@@ -141,8 +159,12 @@ class WeatherFavoritesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.appBar.addMenuProvider(object : MenuProvider {
+            @SuppressLint("RestrictedApi")
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_weather_favorites, menu)
+                if (menu is MenuBuilder) {
+                    menu.setOptionalIconsVisible(true)
+                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -159,6 +181,12 @@ class WeatherFavoritesFragment : Fragment() {
                             .replace(R.id.container, SettingsFragment())
                             .addToBackStack(null)
                             .commit()
+                        true
+                    }
+                    R.id.action_refresh -> {
+                        if (menuItem.isEnabled) {
+                            viewModel.refreshForecasts()
+                        }
                         true
                     }
                     else -> false

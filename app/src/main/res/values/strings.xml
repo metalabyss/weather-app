@@ -7,6 +7,7 @@
     <string name="template_temperature">%1$s°</string>
     <string name="toolbar_settings_title">Settings</string>
     <string name="toolbar_search_title">Search</string>
+    <string name="toolbar_refresh_title">Refresh</string>
     <string name="message_add_location">%1$s added to favorites</string>
     <string name="message_remove_location">%1$s removed from favorites</string>
 
