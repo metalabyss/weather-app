@@ -27,14 +27,22 @@ class WeatherFavoritesViewModel(
     val snackbarOptions by lazy { MutableSharedFlow<SnackbarOptions>() }
     val errorMessage by lazy { MutableSharedFlow<String>() }
     val isLongTaskRunning by lazy { MutableStateFlow(false) }
+    val favoritesState by lazy { MutableStateFlow(WeatherFavoritesState.EMPTY) }
 
     init { getLatestCachedForecasts() }
 
     private fun getLatestCachedForecasts() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                repository.getLatestFavoriteForecasts()
-                    .collect { list -> favoritesList.value = list }
+                repository.getLatestFavoriteForecasts().collect { list ->
+                    favoritesState.value =
+                        if (list.isEmpty()) {
+                            WeatherFavoritesState.EMPTY
+                        } else {
+                            WeatherFavoritesState.UP_TO_DATE
+                        }
+                    favoritesList.value = list
+                }
             } catch (throwable: Throwable) {
                 TAG?.let { printErrorMessageToLogAndShowItToUser(it, throwable, errorMessage) }
             }
