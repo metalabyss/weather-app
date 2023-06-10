@@ -42,10 +42,9 @@
             android:layout_marginTop="8dp"
             android:text="@string/favorites_empty_page_subtitle"
             android:textAppearance="?attr/textAppearanceBody2"
+            android:maxLines="2"
             android:ellipsize="end"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
             app:layout_constraintTop_toBottomOf="@+id/favorites_empty_title"
             tools:text="@string/favorites_empty_page_subtitle" />
     </androidx.constraintlayout.widget.ConstraintLayout>
