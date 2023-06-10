@@ -4,22 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <ImageView
             android:id="@+id/favorites_empty_image"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:contentDescription="@string/favorites_empty_page_image_description"
-            android:maxHeight="150dp"
-            android:maxWidth="150dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_wind_empty"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.5"
             app:tint="?attr/colorOnSurface"
             tools:src="@drawable/ic_wind_empty"
             tools:tint="@color/black" />
@@ -37,7 +36,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/favorites_empty_subtitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/favorites_empty_page_subtitle"
@@ -46,6 +45,9 @@
             android:ellipsize="end"
             android:gravity="center"
             app:layout_constraintTop_toBottomOf="@+id/favorites_empty_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.8"
             tools:text="@string/favorites_empty_page_subtitle" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
