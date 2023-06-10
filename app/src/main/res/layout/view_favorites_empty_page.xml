@@ -20,7 +20,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="?attr/colorOnPrimary"
+            app:tint="?attr/colorOnSurface"
             tools:src="@drawable/ic_wind_empty"
             tools:tint="@color/black" />
 

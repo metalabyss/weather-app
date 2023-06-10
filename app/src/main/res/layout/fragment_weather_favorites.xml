@@ -9,6 +9,10 @@
             type="io.farafonova.weatherapp.ui.favorites.WeatherFavoritesViewModel" />
 
         <variable
+            name="listState"
+            type="kotlinx.coroutines.flow.MutableStateFlow&lt;io.farafonova.weatherapp.ui.favorites.WeatherFavoritesState>" />
+
+        <variable
             name="isLongTaskRunning"
             type="kotlinx.coroutines.flow.MutableStateFlow&lt;Boolean>" />
 
@@ -20,6 +24,7 @@
         <import type="androidx.work.WorkInfo" />
         <import type="androidx.lifecycle.LiveData"/>
         <import type="java.util.List"/>
+        <import type="io.farafonova.weatherapp.ui.favorites.WeatherFavoritesState"/>
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -41,10 +46,18 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
+        <include
+            layout="@layout/view_favorites_empty_page"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="@{listState == WeatherFavoritesState.EMPTY ? View.VISIBLE : View.INVISIBLE}" />
+
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/favorites_swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="@{listState == WeatherFavoritesState.UP_TO_DATE ? View.VISIBLE : View.INVISIBLE}"
             app:refreshing="@{isLongTaskRunning || refreshWorkInfo.state == WorkInfo.State.RUNNING}"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" >
 

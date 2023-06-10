@@ -52,6 +52,7 @@ class WeatherFavoritesFragment : Fragment() {
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
             weatherViewModel = viewModel
+            listState = viewModel.favoritesState
             isLongTaskRunning = viewModel.isLongTaskRunning
             refreshWorkInfo = viewModel.refreshWorkInfo
         }
